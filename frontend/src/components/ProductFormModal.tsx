@@ -1,28 +1,23 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import type { Product } from '../types/product';
 import type { Category } from '../types/category';
-import { getCategories } from '../api/categories';
 
 interface ProductFormModalProps {
   product: Product | null;
+  categories: Category[];
   onClose: () => void;
   onSubmit: (data: Partial<Product>) => Promise<void>;
 }
 
-export default function ProductFormModal({ product, onClose, onSubmit }: ProductFormModalProps) {
+export default function ProductFormModal({ product, categories, onClose, onSubmit }: ProductFormModalProps) {
   const [name, setName] = useState('');
   const [sku, setSku] = useState('');
   const [description, setDescription] = useState('');
   const [unitVolume, setUnitVolume] = useState(0);
   const [unitWeight, setUnitWeight] = useState(0);
   const [category, setCategory] = useState<number | ''>('');
-  const [categories, setCategories] = useState<Category[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    getCategories().then((data) => setCategories(data.results)).catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (product) {
@@ -32,6 +27,13 @@ export default function ProductFormModal({ product, onClose, onSubmit }: Product
       setUnitVolume(product.unit_volume);
       setUnitWeight(product.unit_weight);
       setCategory(product.category);
+    } else {
+      setName('');
+      setSku('');
+      setDescription('');
+      setUnitVolume(0);
+      setUnitWeight(0);
+      setCategory('');
     }
   }, [product]);
 
@@ -82,6 +84,9 @@ export default function ProductFormModal({ product, onClose, onSubmit }: Product
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
+            {categories.length === 0 && (
+              <p className="text-yellow-400 text-xs mt-1">No categories found. Please add a category first.</p>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>

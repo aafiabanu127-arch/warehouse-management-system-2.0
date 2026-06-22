@@ -2,34 +2,31 @@ import { useState, useEffect, type FormEvent } from 'react';
 import type { InventoryItem } from '../types/inventory';
 import type { Product } from '../types/product';
 import type { Shelf } from '../types/shelf';
-import { getProducts } from '../api/products';
-import { getShelves } from '../api/shelves';
 
 interface InventoryFormModalProps {
   item: InventoryItem | null;
+  products: Product[];
+  shelves: Shelf[];
   onClose: () => void;
   onSubmit: (data: Partial<InventoryItem>) => Promise<void>;
 }
 
-export default function InventoryFormModal({ item, onClose, onSubmit }: InventoryFormModalProps) {
+export default function InventoryFormModal({ item, products, shelves, onClose, onSubmit }: InventoryFormModalProps) {
   const [product, setProduct] = useState<number | ''>('');
   const [shelf, setShelf] = useState<number | ''>('');
   const [quantity, setQuantity] = useState(0);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [shelves, setShelves] = useState<Shelf[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    getProducts().then((data) => setProducts(data.results)).catch(() => {});
-    getShelves().then((data) => setShelves(data.results)).catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (item) {
       setProduct(item.product);
       setShelf(item.shelf);
       setQuantity(item.quantity);
+    } else {
+      setProduct('');
+      setShelf('');
+      setQuantity(0);
     }
   }, [item]);
 
@@ -65,6 +62,9 @@ export default function InventoryFormModal({ item, onClose, onSubmit }: Inventor
                 <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
               ))}
             </select>
+            {products.length === 0 && (
+              <p className="text-yellow-400 text-xs mt-1">No products found. Please add a product first.</p>
+            )}
           </div>
           <div>
             <label className="block text-sm text-slate-300 mb-1">Shelf</label>
@@ -74,6 +74,9 @@ export default function InventoryFormModal({ item, onClose, onSubmit }: Inventor
                 <option key={s.id} value={s.id}>{s.shelf_code}</option>
               ))}
             </select>
+            {shelves.length === 0 && (
+              <p className="text-yellow-400 text-xs mt-1">No shelves found. Please add a shelf first.</p>
+            )}
           </div>
           <div>
             <label className="block text-sm text-slate-300 mb-1">Quantity</label>
