@@ -21,6 +21,8 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     unit_volume = models.FloatField()
     unit_weight = models.FloatField()
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    reorder_level = models.PositiveIntegerField(default=10)
 
     def __str__(self):
         return self.name

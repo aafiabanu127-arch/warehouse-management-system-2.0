@@ -12,6 +12,8 @@ const navItems = [
   { to: '/stock-movements', label: '🔄 Stock Movements' },
   { to: '/analytics', label: '📈 Analytics' },
   { to: '/approvals', label: '✅ Approvals' },
+  { to: '/notifications', label: '🔔 Notifications' },
+  { to: '/users', label: '👥 User Management' },
 ];
 
 interface ActivityItem {
@@ -286,10 +288,10 @@ export default function Layout() {
                     ))}
                   </div>
                   <button
-                    onClick={() => { navigate('/approvals'); setShowNotifications(false); setNotifCount(0); }}
+                    onClick={() => { navigate('/notifications'); setShowNotifications(false); setNotifCount(0); }}
                     className="w-full text-center text-xs text-emerald-400 hover:text-emerald-300 py-2 transition"
                   >
-                    View all approvals →
+                    View all notifications →
                   </button>
                 </div>
               )}

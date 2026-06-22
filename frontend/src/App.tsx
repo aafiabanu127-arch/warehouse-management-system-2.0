@@ -15,6 +15,9 @@ import Inventory from './pages/Inventory';
 import StockMovements from './pages/StockMovements';
 import Analytics from './pages/Analytics';
 import Approvals from './pages/Approvals';
+import Notifications from './pages/Notifications';
+import UserManagement from './pages/UserManagement';
+
 
 function App() {
   return (
@@ -81,6 +84,20 @@ function App() {
             element={<ProtectedRoute><Layout /></ProtectedRoute>}
           >
             <Route index element={<Approvals />} />
+          </Route>
+
+          <Route
+            path="/notifications"
+            element={<ProtectedRoute><Layout /></ProtectedRoute>}
+          >
+            <Route index element={<Notifications />} />
+          </Route>
+
+          <Route
+            path="/users"
+            element={<ProtectedRoute><Layout /></ProtectedRoute>}
+          >
+            <Route index element={<UserManagement />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

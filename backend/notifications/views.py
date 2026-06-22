@@ -52,3 +52,10 @@ class AlertViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [IsAdminOrManager()]
         return [permissions.IsAuthenticated()]
+from rest_framework.decorators import action
+
+# Add this method inside NotificationViewSet class:
+@action(detail=False, methods=['post'], url_path='mark_all_read')
+def mark_all_read(self, request):
+    self.get_queryset().filter(is_read=False).update(is_read=True)
+    return Response({'status': 'all marked as read'})
