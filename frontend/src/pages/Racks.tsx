@@ -80,14 +80,14 @@ export default function Racks() {
     }
   };
 
-  const totalPages = Math.ceil(count / PAGE_SIZE);
+  const totalPages = Math.ceil(count / PAGE_SIZE) || 1;
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-4">
+    <div>
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Racks</h1>
         {canEdit && (
-          <button onClick={openCreate} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          <button onClick={openCreate} className="bg-emerald-500 hover:bg-emerald-600 px-4 py-2 rounded text-sm font-semibold transition">
             + Add Rack
           </button>
         )}
@@ -98,76 +98,75 @@ export default function Racks() {
         placeholder="Search racks..."
         value={search}
         onChange={e => { setSearch(e.target.value); setPage(1); }}
-        className="border rounded px-3 py-2 mb-4 w-full max-w-sm"
+        className="w-full max-w-md mb-4 px-3 py-2 rounded bg-slate-800 text-white border border-slate-600 focus:outline-none focus:border-emerald-400"
       />
 
-      {isLoading && <p className="text-gray-500">Loading...</p>}
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-red-400 mb-4">{error}</p>}
 
-      {!isLoading && !error && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border rounded shadow text-sm">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-4 py-2 text-left">ID</th>
-                <th className="px-4 py-2 text-left">Rack Code</th>
-                <th className="px-4 py-2 text-left">Capacity</th>
-                <th className="px-4 py-2 text-left">Zone ID</th>
-                {canEdit && <th className="px-4 py-2 text-left">Actions</th>}
+      <div className="overflow-x-auto rounded-lg border border-slate-700">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-800 text-slate-300">
+            <tr>
+              <th className="text-left px-4 py-3">ID</th>
+              <th className="text-left px-4 py-3">Rack Code</th>
+              <th className="text-left px-4 py-3">Capacity</th>
+              <th className="text-left px-4 py-3">Zone ID</th>
+              {canEdit && <th className="text-left px-4 py-3">Actions</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading ? (
+              <tr><td colSpan={5} className="text-center py-6 text-slate-400">Loading...</td></tr>
+            ) : racks.length === 0 ? (
+              <tr><td colSpan={5} className="text-center py-6 text-slate-400">No racks found.</td></tr>
+            ) : racks.map(r => (
+              <tr key={r.id} className="border-t border-slate-700 hover:bg-slate-800/50">
+                <td className="px-4 py-3">{r.id}</td>
+                <td className="px-4 py-3">{r.rack_code}</td>
+                <td className="px-4 py-3">{r.capacity}</td>
+                <td className="px-4 py-3">{r.zone}</td>
+                {canEdit && (
+                  <td className="px-4 py-3 space-x-2">
+                    <button onClick={() => openEdit(r)} className="text-emerald-400 hover:underline">Edit</button>
+                    <button onClick={() => handleDelete(r.id)} className="text-red-400 hover:underline">Delete</button>
+                  </td>
+                )}
               </tr>
-            </thead>
-            <tbody>
-              {racks.length === 0 ? (
-                <tr><td colSpan={5} className="px-4 py-4 text-center text-gray-400">No racks found.</td></tr>
-              ) : racks.map(r => (
-                <tr key={r.id} className="border-t hover:bg-gray-50">
-                  <td className="px-4 py-2">{r.id}</td>
-                  <td className="px-4 py-2">{r.rack_code}</td>
-                  <td className="px-4 py-2">{r.capacity}</td>
-                  <td className="px-4 py-2">{r.zone}</td>
-                  {canEdit && (
-                    <td className="px-4 py-2 space-x-2">
-                      <button onClick={() => openEdit(r)} className="text-blue-600 hover:underline">Edit</button>
-                      <button onClick={() => handleDelete(r.id)} className="text-red-600 hover:underline">Delete</button>
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {totalPages > 1 && (
-        <div className="flex gap-2 mt-4">
-          <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="px-3 py-1 border rounded disabled:opacity-40">Prev</button>
-          <span className="px-3 py-1">Page {page} of {totalPages}</span>
-          <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)} className="px-3 py-1 border rounded disabled:opacity-40">Next</button>
+      <div className="flex justify-between items-center mt-4 text-sm text-slate-300">
+        <span>Page {page} of {totalPages} ({count} total)</span>
+        <div className="space-x-2">
+          <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40">Previous</button>
+          <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40">Next</button>
         </div>
-      )}
+      </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-slate-800 border border-slate-700 rounded-lg shadow-lg p-6 w-full max-w-md">
             <h2 className="text-lg font-semibold mb-4">{editing ? 'Edit Rack' : 'Add Rack'}</h2>
-            {formError && <p className="text-red-500 text-sm mb-2">{formError}</p>}
+            {formError && <p className="text-red-400 text-sm mb-2">{formError}</p>}
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium mb-1">Rack Code</label>
-                <input value={form.rack_code} onChange={e => setForm(f => ({ ...f, rack_code: e.target.value }))} className="border rounded px-3 py-2 w-full" />
+                <label className="block text-sm font-medium mb-1 text-slate-300">Rack Code</label>
+                <input value={form.rack_code} onChange={e => setForm(f => ({ ...f, rack_code: e.target.value }))} className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 text-white focus:outline-none focus:border-emerald-400" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Capacity</label>
-                <input type="number" value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: e.target.value }))} className="border rounded px-3 py-2 w-full" />
+                <label className="block text-sm font-medium mb-1 text-slate-300">Capacity</label>
+                <input type="number" value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: e.target.value }))} className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 text-white focus:outline-none focus:border-emerald-400" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Zone ID</label>
-                <input type="number" value={form.zone} onChange={e => setForm(f => ({ ...f, zone: e.target.value }))} className="border rounded px-3 py-2 w-full" />
+                <label className="block text-sm font-medium mb-1 text-slate-300">Zone ID</label>
+                <input type="number" value={form.zone} onChange={e => setForm(f => ({ ...f, zone: e.target.value }))} className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 text-white focus:outline-none focus:border-emerald-400" />
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-5">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 border rounded hover:bg-gray-50">Cancel</button>
-              <button onClick={handleSubmit} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">{editing ? 'Update' : 'Create'}</button>
+              <button onClick={() => setShowModal(false)} className="px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 text-slate-300">Cancel</button>
+              <button onClick={handleSubmit} className="px-4 py-2 rounded bg-emerald-500 hover:bg-emerald-600 text-white font-semibold">{editing ? 'Update' : 'Create'}</button>
             </div>
           </div>
         </div>

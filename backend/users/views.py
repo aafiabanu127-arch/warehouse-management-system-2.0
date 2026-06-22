@@ -120,3 +120,12 @@ class PasswordResetConfirmView(APIView):
         log_action(user, 'UPDATE', 'CustomUser', resource_id=user.id,
                     detail='Password reset completed', request=request)
         return Response({'message': 'Password has been reset successfully.'}, status=status.HTTP_200_OK)
+
+
+from rest_framework import viewsets
+from .permissions import IsAdmin
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all().order_by('id')
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated, IsAdmin]
