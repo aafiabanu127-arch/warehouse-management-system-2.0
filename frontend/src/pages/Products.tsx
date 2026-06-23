@@ -125,7 +125,7 @@ export default function Products() {
                   <td className="px-4 py-3">{categoryName(p.category)}</td>
                   <td className="px-4 py-3">{p.unit_volume}</td>
                   <td className="px-4 py-3">{p.unit_weight}</td>
-                  <td className="px-4 py-3">${p.unit_price?.toFixed(2) ?? '—'}</td>
+                  <td className="px-4 py-3">${Number(p.unit_price)?.toFixed(2) ?? '—'}</td>
                   {canEditProducts && (
                     <td className="px-4 py-3 space-x-2">
                       <button onClick={() => handleEdit(p)} className="text-emerald-400 hover:underline">Edit</button>

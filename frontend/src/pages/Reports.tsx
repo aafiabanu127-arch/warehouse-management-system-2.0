@@ -68,30 +68,30 @@ export default function Reports() {
   };
 
   const statusColor = (s: string) =>
-    s === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-    s === 'FAILED'    ? 'bg-red-100 text-red-800' :
-                        'bg-yellow-100 text-yellow-800';
+    s === 'COMPLETED' ? 'bg-emerald-400/10 text-emerald-400' :
+    s === 'FAILED'    ? 'bg-red-400/10 text-red-400' :
+                        'bg-yellow-400/10 text-yellow-400';
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-semibold text-gray-800">Reports</h1>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold">Reports</h1>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg">
           {error}
         </div>
       )}
 
       {/* Generate panel */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <h2 className="text-base font-medium text-gray-700 mb-4">Generate New Report</h2>
+      <div className="bg-slate-800 rounded-xl border border-slate-700 p-5">
+        <h2 className="text-base font-medium text-slate-200 mb-4">Generate New Report</h2>
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-gray-500">Report Type</label>
+            <label className="text-xs text-slate-400">Report Type</label>
             <select
               value={selType}
               onChange={e => setSelType(e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-400"
             >
               {REPORT_TYPES.map(t => (
                 <option key={t.value} value={t.value}>{t.label}</option>
@@ -99,18 +99,18 @@ export default function Reports() {
             </select>
           </div>
           <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
-            <label className="text-xs text-gray-500">Title</label>
+            <label className="text-xs text-slate-400">Title</label>
             <input
               value={selTitle}
               onChange={e => setSelTitle(e.target.value)}
               placeholder="e.g. June Inventory Report"
-              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400"
             />
           </div>
           <button
             onClick={handleGenerate}
             disabled={generating}
-            className="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition"
+            className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50 transition"
           >
             {generating ? 'Generating…' : 'Generate'}
           </button>
@@ -118,9 +118,9 @@ export default function Reports() {
       </div>
 
       {/* Reports table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="rounded-xl border border-slate-700 overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+          <thead className="bg-slate-800 text-slate-300">
             <tr>
               <th className="px-5 py-3 text-left">Title</th>
               <th className="px-5 py-3 text-left">Type</th>
@@ -130,34 +130,34 @@ export default function Reports() {
               <th className="px-5 py-3 text-left">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody>
             {isLoading && (
-              <tr><td colSpan={6} className="px-5 py-8 text-center text-gray-400">Loading…</td></tr>
+              <tr><td colSpan={6} className="px-5 py-8 text-center text-slate-400">Loading…</td></tr>
             )}
             {!isLoading && reports.length === 0 && (
-              <tr><td colSpan={6} className="px-5 py-8 text-center text-gray-400">No reports yet. Generate one above.</td></tr>
+              <tr><td colSpan={6} className="px-5 py-8 text-center text-slate-400">No reports yet. Generate one above.</td></tr>
             )}
             {reports.map(r => (
-              <tr key={r.id} className="hover:bg-gray-50 transition">
-                <td className="px-5 py-3 font-medium text-gray-800">{r.title}</td>
-                <td className="px-5 py-3 text-gray-500">{REPORT_TYPES.find(t => t.value === r.report_type)?.label ?? r.report_type}</td>
+              <tr key={r.id} className="border-t border-slate-700 hover:bg-slate-800/50 transition">
+                <td className="px-5 py-3 font-medium text-white">{r.title}</td>
+                <td className="px-5 py-3 text-slate-400">{REPORT_TYPES.find(t => t.value === r.report_type)?.label ?? r.report_type}</td>
                 <td className="px-5 py-3">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor(r.status)}`}>
                     {r.status}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-gray-500">{new Date(r.created_at).toLocaleDateString()}</td>
+                <td className="px-5 py-3 text-slate-400">{new Date(r.created_at).toLocaleDateString()}</td>
                 <td className="px-5 py-3">
                   {r.status === 'COMPLETED' && (
                     <div className="flex gap-2">
-                      <button onClick={() => handleExport(r.id, 'csv',   r.title)} className="text-xs text-blue-600 hover:underline">CSV</button>
-                      <button onClick={() => handleExport(r.id, 'excel', r.title)} className="text-xs text-green-600 hover:underline">Excel</button>
-                      <button onClick={() => handleExport(r.id, 'pdf',   r.title)} className="text-xs text-red-600 hover:underline">PDF</button>
+                      <button onClick={() => handleExport(r.id, 'csv',   r.title)} className="text-xs text-blue-400 hover:underline">CSV</button>
+                      <button onClick={() => handleExport(r.id, 'excel', r.title)} className="text-xs text-emerald-400 hover:underline">Excel</button>
+                      <button onClick={() => handleExport(r.id, 'pdf',   r.title)} className="text-xs text-red-400 hover:underline">PDF</button>
                     </div>
                   )}
                 </td>
                 <td className="px-5 py-3">
-                  <button onClick={() => handleDelete(r.id)} className="text-xs text-red-500 hover:underline">Delete</button>
+                  <button onClick={() => handleDelete(r.id)} className="text-xs text-red-400 hover:underline">Delete</button>
                 </td>
               </tr>
             ))}
