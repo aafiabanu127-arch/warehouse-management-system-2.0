@@ -5,12 +5,10 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-3^qso=c=!07vbj##zh&egtc41yoz8)47^+i6+7*0wpvw1yo(7i')
-
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-for-local-only')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
-
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -93,6 +91,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "https://warehouse-frontend.onrender.com",
 ]
 CORS_ALLOW_CREDENTIALS = True
 

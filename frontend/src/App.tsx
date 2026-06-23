@@ -20,7 +20,7 @@ import UserManagement from './pages/UserManagement';
 import Zones from './pages/Zones';
 import Racks from './pages/Racks';
 import Shelves from './pages/Shelves';
-
+import Reports from './pages/Reports';
 
 function App() {
   return (
@@ -122,6 +122,13 @@ function App() {
             element={<ProtectedRoute><Layout /></ProtectedRoute>}
           >
             <Route index element={<Shelves />} />
+          </Route>
+
+          <Route
+            path="/reports"
+            element={<ProtectedRoute><Layout /></ProtectedRoute>}
+          >
+            <Route index element={<Reports />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

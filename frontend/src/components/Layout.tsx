@@ -14,6 +14,7 @@ const navItems = [
   { to: '/categories', label: '🗂️ Categories' },
   { to: '/stock-movements', label: '🔄 Stock Movements' },
   { to: '/analytics', label: '📈 Analytics' },
+  { to: '/reports',   label: '📋 Reports' },
   { to: '/approvals', label: '✅ Approvals' },
   { to: '/notifications', label: '🔔 Notifications' },
   { to: '/users', label: '👥 User Management' },
@@ -43,6 +44,7 @@ const allSearchItems: SearchResult[] = [
   { label: '🔄 Stock Movements', to: '/stock-movements' },
   { label: '📈 Analytics', to: '/analytics' },
   { label: '✅ Approvals', to: '/approvals' },
+  { label: '📋 Reports',   to: '/reports' },
 ];
 
 export default function Layout() {
