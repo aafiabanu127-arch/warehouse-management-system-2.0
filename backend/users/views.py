@@ -9,8 +9,8 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.core.mail import send_mail
 from django.conf import settings
-
 from .models import CustomUser, log_action
+from users.permissions import IsAdminOrManager
 from .serializers import (
     UserSerializer,
     RegisterSerializer,
@@ -128,4 +128,4 @@ from .permissions import IsAdmin
 class UserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().order_by('id')
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated, IsAdmin]
+    permission_classes = [IsAuthenticated, IsAdminOrManager]

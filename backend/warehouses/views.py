@@ -35,7 +35,7 @@ class WarehouseViewSet(AuditLogMixin, viewsets.ModelViewSet):
     permission_classes = [IsAdminOrManager]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['location']
-    search_fields = ['name', 'location', 'manager_name']
+    search_fields = ['name', 'location', 'manager__username']
     ordering_fields = ['name', 'total_capacity', 'available_capacity', 'created_at']
 
 
@@ -95,7 +95,7 @@ class WarehouseKPIView(APIView):
                 'warehouse_id': wh.id,
                 'warehouse_name': wh.name,
                 'location': wh.location,
-                'manager_name': wh.manager_name,
+                'manager_name': wh.manager.username if wh.manager else None,
                 'total_capacity': total,
                 'occupied_capacity': occupied,
                 'available_capacity': available,
