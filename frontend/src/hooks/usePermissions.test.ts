@@ -2,8 +2,9 @@ import { describe, it, expect, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { usePermissions } from './usePermissions';
 import * as AuthContext from '../context/AuthContext';
+import type { UserRole } from '../context/AuthContext';
 
-function mockRole(role: string) {
+function mockRole(role: UserRole) {
   vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
     user: { id: 1, username: 'testuser', email: 'test@test.com', role, phone: '', department: '' },
     isAuthenticated: true,

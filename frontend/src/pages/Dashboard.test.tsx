@@ -12,9 +12,9 @@ vi.mock('../api/dashboard', () => ({
   }),
 }));
 
-vi.mock('../context/AuthContext', () => ({
+vi.mock('../../context/AuthContext', () => ({
   useAuth: () => ({
-    user: { username: 'admin', role: 'ADMIN' },
+    user: { username: 'admin', role: 'ADMIN' as const },
   }),
 }));
 

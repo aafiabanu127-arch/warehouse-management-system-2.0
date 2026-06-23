@@ -12,7 +12,7 @@ vi.mock('../api/client', () => ({
   },
 }));
 
-function mockRole(role: string) {
+function mockRole(role: import('../context/AuthContext').UserRole) {
   vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
     user: { id: 1, username: 'u', email: 'u@u.com', role, phone: '', department: '' },
     isAuthenticated: true,
@@ -47,7 +47,7 @@ beforeEach(() => {
 
 describe('Approvals page', () => {
   it('loads and displays pending transfer count', async () => {
-    mockRole('ADMIN');
+    mockRole('ADMIN' as any);
     render(<Approvals />);
     await waitFor(() => expect(screen.getByText('Pending Transfers')).toBeInTheDocument());
     const counts = screen.getAllByText('1');
@@ -55,28 +55,28 @@ describe('Approvals page', () => {
   });
 
   it('SUPERVISOR sees Approve and Reject buttons', async () => {
-    mockRole('SUPERVISOR');
+    mockRole('SUPERVISOR' as any);
     render(<Approvals />);
     await waitFor(() => expect(screen.getByText('Approve')).toBeInTheDocument());
     expect(screen.getByText('Reject')).toBeInTheDocument();
   });
 
   it('STAFF sees Awaiting approval instead of action buttons', async () => {
-    mockRole('STAFF');
+    mockRole('STAFF' as any);
     render(<Approvals />);
     await waitFor(() => expect(screen.getByText('Awaiting approval')).toBeInTheDocument());
     expect(screen.queryByText('Approve')).not.toBeInTheDocument();
   });
 
   it('AUDITOR sees Awaiting approval and no action buttons', async () => {
-    mockRole('AUDITOR');
+    mockRole('AUDITOR' as any);
     render(<Approvals />);
     await waitFor(() => expect(screen.getByText('Awaiting approval')).toBeInTheDocument());
     expect(screen.queryByText('Approve')).not.toBeInTheDocument();
   });
 
   it('clicking Approve calls the correct API endpoint', async () => {
-    mockRole('ADMIN');
+    mockRole('ADMIN' as any);
     render(<Approvals />);
     await waitFor(() => expect(screen.getByText('Approve')).toBeInTheDocument());
     await userEvent.click(screen.getByText('Approve'));

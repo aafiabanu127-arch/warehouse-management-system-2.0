@@ -1,23 +1,37 @@
-﻿import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+
+const ROLE_DEFAULT_ROUTE: Record<string, string> = {
+  ADMIN:      '/dashboard',
+  MANAGER:    '/dashboard',
+  SUPERVISOR: '/dashboard',
+  STAFF:      '/inventory',
+  PICKER:     '/stock-movements',
+  AUDITOR:    '/reports',
+  VIEWER:     '/dashboard',
+};
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const intendedPath = (location.state as { from?: { pathname: string } } | null)?.from?.pathname;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
     try {
-      await login(username, password);
-      navigate('/dashboard');
+      const { role } = await login(username, password);
+      const destination = intendedPath || ROLE_DEFAULT_ROUTE[role] || '/dashboard';
+      navigate(destination, { replace: true });
     } catch {
       setError('Invalid username or password.');
     } finally {

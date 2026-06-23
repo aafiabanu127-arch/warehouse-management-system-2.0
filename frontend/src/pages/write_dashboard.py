@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+content = r"""import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getDashboardSummary } from '../api/dashboard';
@@ -174,3 +174,9 @@ export default function Dashboard() {
     </div>
   );
 }
+"""
+
+with open("Dashboard.tsx", "w", encoding="utf-8") as f:
+    f.write(content)
+
+print("Done!")

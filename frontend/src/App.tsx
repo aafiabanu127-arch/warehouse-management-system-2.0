@@ -1,4 +1,4 @@
-﻿import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
@@ -33,102 +33,33 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
 
-          <Route
-            path="/dashboard"
-            element={<ProtectedRoute><Layout /></ProtectedRoute>}
-          >
-            <Route index element={<Dashboard />} />
+          <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+            <Route path="/dashboard"       element={<Dashboard />} />
+            <Route path="/notifications"   element={<Notifications />} />
+            <Route path="/inventory"       element={<Inventory />} />
+            <Route path="/stock-movements" element={<StockMovements />} />
+            <Route path="/products"        element={<Products />} />
+            <Route path="/categories"      element={<Categories />} />
+            <Route path="/warehouses"      element={<Warehouses />} />
+            <Route path="/zones"           element={<Zones />} />
+            <Route path="/racks"           element={<Racks />} />
+            <Route path="/shelves"         element={<Shelves />} />
           </Route>
 
-          <Route
-            path="/warehouses"
-            element={<ProtectedRoute><Layout /></ProtectedRoute>}
-          >
-            <Route index element={<Warehouses />} />
+          <Route element={<ProtectedRoute minLevel={1}><Layout /></ProtectedRoute>}>
+            <Route path="/reports" element={<Reports />} />
           </Route>
 
-          <Route
-            path="/categories"
-            element={<ProtectedRoute><Layout /></ProtectedRoute>}
-          >
-            <Route index element={<Categories />} />
+          <Route element={<ProtectedRoute minLevel={2}><Layout /></ProtectedRoute>}>
+            <Route path="/analytics" element={<Analytics />} />
           </Route>
 
-          <Route
-            path="/products"
-            element={<ProtectedRoute><Layout /></ProtectedRoute>}
-          >
-            <Route index element={<Products />} />
+          <Route element={<ProtectedRoute minLevel={3}><Layout /></ProtectedRoute>}>
+            <Route path="/approvals" element={<Approvals />} />
           </Route>
 
-          <Route
-            path="/inventory"
-            element={<ProtectedRoute><Layout /></ProtectedRoute>}
-          >
-            <Route index element={<Inventory />} />
-          </Route>
-
-          <Route
-            path="/stock-movements"
-            element={<ProtectedRoute><Layout /></ProtectedRoute>}
-          >
-            <Route index element={<StockMovements />} />
-          </Route>
-
-          <Route
-            path="/analytics"
-            element={<ProtectedRoute><Layout /></ProtectedRoute>}
-          >
-            <Route index element={<Analytics />} />
-          </Route>
-
-          <Route
-            path="/approvals"
-            element={<ProtectedRoute><Layout /></ProtectedRoute>}
-          >
-            <Route index element={<Approvals />} />
-          </Route>
-
-          <Route
-            path="/notifications"
-            element={<ProtectedRoute><Layout /></ProtectedRoute>}
-          >
-            <Route index element={<Notifications />} />
-          </Route>
-
-          <Route
-            path="/users"
-            element={<ProtectedRoute><Layout /></ProtectedRoute>}
-          >
-            <Route index element={<UserManagement />} />
-          </Route>
-
-          <Route
-            path="/zones"
-            element={<ProtectedRoute><Layout /></ProtectedRoute>}
-          >
-            <Route index element={<Zones />} />
-          </Route>
-
-          <Route
-            path="/racks"
-            element={<ProtectedRoute><Layout /></ProtectedRoute>}
-          >
-            <Route index element={<Racks />} />
-          </Route>
-
-          <Route
-            path="/shelves"
-            element={<ProtectedRoute><Layout /></ProtectedRoute>}
-          >
-            <Route index element={<Shelves />} />
-          </Route>
-
-          <Route
-            path="/reports"
-            element={<ProtectedRoute><Layout /></ProtectedRoute>}
-          >
-            <Route index element={<Reports />} />
+          <Route element={<ProtectedRoute minLevel={5}><Layout /></ProtectedRoute>}>
+            <Route path="/users" element={<UserManagement />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

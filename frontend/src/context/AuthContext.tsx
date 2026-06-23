@@ -1,11 +1,20 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import apiClient from '../api/client';
 
+export type UserRole =
+  | 'ADMIN'
+  | 'MANAGER'
+  | 'SUPERVISOR'
+  | 'STAFF'
+  | 'PICKER'
+  | 'AUDITOR'
+  | 'VIEWER';
+
 interface User {
   id: number;
   username: string;
   email: string;
-  role: string;
+  role: UserRole;
   phone: string;
   department: string;
 }
@@ -14,7 +23,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<{ role: UserRole }>;
   logout: () => void;
 }
 
@@ -24,33 +33,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchCurrentUser = async () => {
-    try {
-      const response = await apiClient.get('/users/me/');
-      setUser(response.data);
-    } catch {
-      setUser(null);
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-    } finally {
-      setIsLoading(false);
-    }
+  const fetchCurrentUser = async (): Promise<User> => {
+    const response = await apiClient.get('/users/me/');
+    setUser(response.data);
+    return response.data;
   };
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (token) {
-      fetchCurrentUser();
+      fetchCurrentUser()
+        .catch(() => {
+          setUser(null);
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+        })
+        .finally(() => setIsLoading(false));
     } else {
       setIsLoading(false);
     }
   }, []);
 
-  const login = async (username: string, password: string) => {
+  const login = async (username: string, password: string): Promise<{ role: UserRole }> => {
     const response = await apiClient.post('/token/', { username, password });
     localStorage.setItem('access_token', response.data.access);
     localStorage.setItem('refresh_token', response.data.refresh);
-    await fetchCurrentUser();
+    const loggedInUser = await fetchCurrentUser();
+    return { role: loggedInUser.role };
   };
 
   const logout = () => {
