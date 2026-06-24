@@ -21,13 +21,26 @@ import Zones from './pages/Zones';
 import Racks from './pages/Racks';
 import Shelves from './pages/Shelves';
 import Reports from './pages/Reports';
-
+import ServicesPage from './pages/ServicesPage';
+import AboutPage from './pages/AboutPage';
+import FeaturesPage from './pages/FeaturesPage';
+import ProcessPage from './pages/ProcessPage';
+import CareersPage from './pages/CareersPage';
+import ContactPage from './pages/ContactPage';
+import JobApplicationPage from './pages/JobApplicationPage';
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/features" element={<FeaturesPage />} />
+          <Route path="/process" element={<ProcessPage />} />
+          <Route path="/careers" element={<CareersPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/apply" element={<JobApplicationPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

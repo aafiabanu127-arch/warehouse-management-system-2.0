@@ -489,19 +489,28 @@ export default function Landing() {
   }, []);
 
   const navLinks = ["Home", "Services", "About", "Features", "Process", "Careers", "Contact"];
-  const scrollTo = (id: string) => { document.getElementById(id.toLowerCase())?.scrollIntoView({ behavior: "smooth" }); setMenuOpen(false); };
+ const scrollTo = (id: string) => {
+  const pageRoutes: Record<string, string> = {
+    services: "/services", about: "/about", features: "/features",
+    process: "/process", careers: "/careers", contact: "/contact",
+  };
+  const key = id.toLowerCase();
+  if (pageRoutes[key]) { navigate(pageRoutes[key]); setMenuOpen(false); return; }
+  document.getElementById(key)?.scrollIntoView({ behavior: "smooth" });
+  setMenuOpen(false);
+};
 
   const css = `
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body { background: #020810; font-family: 'Inter', sans-serif; color: #fff; overflow-x: hidden; }
-    ::selection { background: rgba(0,212,255,0.25); }
+    ::selection { background: rgba(3, 10, 11, 0.86); }
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: #040c1a; }
-    ::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(8, 18, 19, 0.9); border-radius: 3px; }
     
-    @keyframes pulse-glow { 0%,100%{box-shadow:0 0 0 0 rgba(0,212,255,0.5),0 8px 32px rgba(0,212,255,0.2)} 50%{box-shadow:0 0 0 10px rgba(0,212,255,0),0 8px 32px rgba(0,212,255,0.25)} }
+    @keyframes pulse-glow { 0%,100%{box-shadow:0 0 0 0 rgba(14, 19, 20, 0.87),0 8px 32px rgba(0,212,255,0.2)} 50%{box-shadow:0 0 0 10px rgba(0,212,255,0),0 8px 32px rgba(0,212,255,0.25)} }
     @keyframes float { 0%,100%{transform:translateY(0) rotate(0deg)} 33%{transform:translateY(-10px) rotate(0.5deg)} 66%{transform:translateY(-6px) rotate(-0.5deg)} }
     @keyframes scanline { 0%{transform:translateY(-100%)} 100%{transform:translateY(100%)} }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
