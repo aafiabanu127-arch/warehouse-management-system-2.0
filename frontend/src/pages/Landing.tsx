@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-
+import PublicNavbar from "../components/PublicNavbar";
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Job { title: string; dept: string; type: string; reqs: string[]; badge: string; }
 interface Metric { label: string; end: number; suffix: string; icon: string; sub: string; }
@@ -475,30 +475,20 @@ function Kicker({ children }: { children: React.ReactNode }) {
 
 // ─── Main Landing Page ────────────────────────────────────────────────────────
 export default function Landing() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [contactSent, setContactSent] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", company: "", message: "" });
   const { ref: statsRef, inView: statsInView } = useInView();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 48);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const navLinks = ["Home", "Services", "About", "Features", "Process", "Careers", "Contact"];
- const scrollTo = (id: string) => {
-  const pageRoutes: Record<string, string> = {
-    services: "/services", about: "/about", features: "/features",
-    process: "/process", careers: "/careers", contact: "/contact",
+  const scrollTo = (id: string) => {
+    const pageRoutes: Record<string, string> = {
+      services: "/services", about: "/about", features: "/features",
+      process: "/process", careers: "/careers", contact: "/contact",
+    };
+    const key = id.toLowerCase();
+    if (pageRoutes[key]) { navigate(pageRoutes[key]); return; }
+    document.getElementById(key)?.scrollIntoView({ behavior: "smooth" });
   };
-  const key = id.toLowerCase();
-  if (pageRoutes[key]) { navigate(pageRoutes[key]); setMenuOpen(false); return; }
-  document.getElementById(key)?.scrollIntoView({ behavior: "smooth" });
-  setMenuOpen(false);
-};
 
   const css = `
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
@@ -542,47 +532,7 @@ export default function Landing() {
       <div style={{ background: "#020810", minHeight: "100vh", position: "relative" }}>
 
         {/* ── Navbar ── */}
-        <nav style={{
-          position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-          background: scrolled ? "rgba(2,8,16,0.88)" : "transparent",
-          backdropFilter: scrolled ? "blur(24px)" : "none",
-          borderBottom: scrolled ? "1px solid rgba(0,212,255,0.08)" : "none",
-          transition: "all 0.4s ease", padding: "0 32px",
-        }}>
-          <div style={{ maxWidth: 1140, margin: "0 auto", height: 68, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            {/* Logo */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={() => scrollTo("home")}>
-              <div style={{ width: 38, height: 38, background: "linear-gradient(135deg,#00d4ff,#0ea5e9)", borderRadius: 11, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, boxShadow: "0 4px 16px rgba(0,212,255,0.3)" }}>📦</div>
-              <div>
-                <div style={{ fontWeight: 900, fontSize: 15, background: "linear-gradient(135deg,#00d4ff 30%,#fff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: -0.3 }}>WSOS</div>
-                <div style={{ fontSize: 9, color: "rgba(255,255,255,0.25)", letterSpacing: 2, textTransform: "uppercase", lineHeight: 1, marginTop: -1 }}>Warehouse OS</div>
-              </div>
-            </div>
-            {/* Desktop nav */}
-            <div className="desktop-nav" style={{ display: "flex", gap: 2, alignItems: "center" }}>
-              {navLinks.map(l => <button key={l} className="nav-link" onClick={() => scrollTo(l)}>{l}</button>)}
-            </div>
-            {/* CTA group */}
-            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-              <button className="cta-secondary" style={{ padding: "8px 18px", fontSize: 13, animation: "none" }} onClick={() => navigate("/login")}>Log In</button>
-              <button className="cta-primary" style={{ padding: "8px 18px", fontSize: 13, animation: "none" }} onClick={() => navigate("/register")}>Get Started</button>
-            </div>
-            {/* Hamburger */}
-            <button onClick={() => setMenuOpen(m => !m)} className="hamburger" style={{ display: "none", background: "none", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontSize: 20, cursor: "pointer", borderRadius: 8, padding: "6px 10px", alignItems: "center", justifyContent: "center" }}>
-              {menuOpen ? "✕" : "☰"}
-            </button>
-          </div>
-          {/* Mobile menu */}
-          {menuOpen && (
-            <div style={{ background: "rgba(2,8,18,0.97)", backdropFilter: "blur(24px)", padding: "20px 24px 28px", display: "flex", flexDirection: "column", gap: 4, borderTop: "1px solid rgba(0,212,255,0.1)", animation: "slide-up 0.25s ease" }}>
-              {navLinks.map(l => <button key={l} className="nav-link" onClick={() => scrollTo(l)} style={{ textAlign: "left", padding: "10px 14px" }}>{l}</button>)}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 16 }}>
-                <button className="cta-secondary" style={{ fontSize: 13 }} onClick={() => navigate("/login")}>Log In</button>
-                <button className="cta-primary" style={{ fontSize: 13 }} onClick={() => navigate("/register")}>Get Started</button>
-              </div>
-            </div>
-          )}
-        </nav>
+        <PublicNavbar />
 
         {/* ── Hero ── */}
         <section id="home" style={{ position: "relative", minHeight: "100vh", display: "flex", alignItems: "center", overflow: "hidden" }}>

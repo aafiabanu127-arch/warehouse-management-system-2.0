@@ -1,13 +1,12 @@
-
 import { useNavigate } from "react-router-dom";
-
+import PublicNavbar from "../components/PublicNavbar";
 export default function AboutPage() {
   const navigate = useNavigate();
   return (
     <div style={{ background: "#020810", minHeight: "100vh", color: "#fff", fontFamily: "Inter, sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');`}</style>
-      <div style={{ maxWidth: 900, margin: "0 auto", padding: "80px 24px" }}>
-        <button onClick={() => navigate("/")} style={{ background: "rgba(0,212,255,0.1)", border: "1px solid rgba(0,212,255,0.3)", color: "#00d4ff", borderRadius: 10, padding: "8px 18px", cursor: "pointer", marginBottom: 48, fontSize: 14 }}>← Back to Home</button>
+      <PublicNavbar />
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: "148px 24px 80px" }}>
         <h1 style={{ fontSize: "clamp(32px,5vw,60px)", fontWeight: 900, marginBottom: 16, letterSpacing: -1.5, background: "linear-gradient(135deg,#00d4ff,#7c3aed)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>About Us</h1>
         <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 17, lineHeight: 1.85, marginBottom: 24 }}>Built by logistics engineers and data scientists who lived the problem — warehouses bursting at the seams while shelves sat half-empty two aisles over.</p>
         <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 17, lineHeight: 1.85, marginBottom: 48 }}>Our platform fuses IoT sensor data, AI demand forecasting, and human-centred design to give your team tools they actually want to use.</p>

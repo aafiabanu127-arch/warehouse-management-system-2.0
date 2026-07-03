@@ -49,14 +49,17 @@ function App() {
           <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route path="/dashboard"       element={<Dashboard />} />
             <Route path="/notifications"   element={<Notifications />} />
-            <Route path="/inventory"       element={<Inventory />} />
-            <Route path="/stock-movements" element={<StockMovements />} />
             <Route path="/products"        element={<Products />} />
-            <Route path="/categories"      element={<Categories />} />
             <Route path="/warehouses"      element={<Warehouses />} />
             <Route path="/zones"           element={<Zones />} />
             <Route path="/racks"           element={<Racks />} />
             <Route path="/shelves"         element={<Shelves />} />
+          </Route>
+
+          <Route element={<ProtectedRoute minLevel={6}><Layout /></ProtectedRoute>}>
+            <Route path="/inventory"       element={<Inventory />} />
+            <Route path="/stock-movements" element={<StockMovements />} />
+            <Route path="/categories"      element={<Categories />} />
           </Route>
 
           <Route element={<ProtectedRoute minLevel={1}><Layout /></ProtectedRoute>}>

@@ -5,6 +5,7 @@ export interface Zone {
   name: string;
   capacity: number;
   warehouse: number;
+  zone_type: 'A' | 'B';
 }
 
 export interface PaginatedResponse<T> {

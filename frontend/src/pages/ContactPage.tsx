@@ -1,6 +1,6 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PublicNavbar from "../components/PublicNavbar";
 
 export default function ContactPage() {
   const navigate = useNavigate();
@@ -14,8 +14,8 @@ export default function ContactPage() {
         .gi:focus { border-color:#00d4ff; box-shadow:0 0 0 3px rgba(0,212,255,0.1); }
         .gi::placeholder { color:rgba(255,255,255,0.22); }
       `}</style>
-      <div style={{ maxWidth: 700, margin: "0 auto", padding: "80px 24px" }}>
-        <button onClick={() => navigate("/")} style={{ background: "rgba(0,212,255,0.1)", border: "1px solid rgba(0,212,255,0.3)", color: "#00d4ff", borderRadius: 10, padding: "8px 18px", cursor: "pointer", marginBottom: 48, fontSize: 14 }}>← Back to Home</button>
+      <PublicNavbar />
+      <div style={{ maxWidth: 700, margin: "0 auto", padding: "148px 24px 80px" }}>
         <h1 style={{ fontSize: "clamp(32px,5vw,60px)", fontWeight: 900, marginBottom: 16, letterSpacing: -1.5, background: "linear-gradient(135deg,#fff 50%,rgba(255,255,255,0.4))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Get In Touch</h1>
         <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 17, lineHeight: 1.8, marginBottom: 48 }}>Whether you manage 1 warehouse or 500, we'll tailor a live demo to your exact operation.</p>
         <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(0,212,255,0.14)", borderRadius: 24, padding: "48px 44px" }}>

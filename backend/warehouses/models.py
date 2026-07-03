@@ -21,16 +21,22 @@ class Warehouse(models.Model):
 
 
 class Zone(models.Model):
+    ZONE_TYPES = [
+        ('A', 'Zone A'),
+        ('B', 'Zone B'),
+    ]
+
     warehouse = models.ForeignKey(
         Warehouse,
         on_delete=models.CASCADE,
         related_name='zones'
     )
     name = models.CharField(max_length=100)
+    zone_type = models.CharField(max_length=1, choices=ZONE_TYPES, default='A')
     capacity = models.FloatField()
 
     def __str__(self):
-        return f"{self.warehouse.name} - {self.name}"
+        return f"{self.warehouse.name} - {self.name} ({self.get_zone_type_display()})"
 
 
 class Rack(models.Model):

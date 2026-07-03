@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PublicNavbar from "../components/PublicNavbar";
 
 const JOBS = [
   {
@@ -93,11 +94,8 @@ export default function CareersPage() {
         ::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.3); border-radius: 3px; }
       `}</style>
 
-      <div style={{ maxWidth: 1000, margin: "0 auto", padding: "80px 24px" }}>
-
-        {/* Back button */}
-        <button onClick={() => navigate("/")} style={{ background: "rgba(0,212,255,0.1)", border: "1px solid rgba(0,212,255,0.3)", color: "#00d4ff", borderRadius: 10, padding: "8px 18px", cursor: "pointer", marginBottom: 48, fontSize: 14 }}>← Back to Home</button>
-
+      <PublicNavbar />
+      <div style={{ maxWidth: 1000, margin: "0 auto", padding: "148px 24px 80px" }}>
         {/* Header */}
         <div style={{ marginBottom: 16 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(220,38,38,0.1)", border: "1px solid rgba(220,38,38,0.3)", color: "#dc2626", fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", borderRadius: 999, padding: "6px 20px", marginBottom: 20 }}>
@@ -177,17 +175,12 @@ export default function CareersPage() {
                     ))}
                   </ul>
                   <button
-                    onClick={e => e.stopPropagation()}
+                    onClick={e => {
+                      e.stopPropagation();
+                      navigate(`/apply?job=${encodeURIComponent(job.title)}&dept=${encodeURIComponent(job.dept)}&location=${encodeURIComponent(job.location)}`);
+                    }}
                     style={{ background: "linear-gradient(135deg,#00d4ff,#0ea5e9)", border: "none", borderRadius: 10, color: "#000", fontWeight: 800, padding: "12px 28px", cursor: "pointer", fontSize: 14 }}>
                     Apply Now →
-                    <button
-  onClick={e => {
-    e.stopPropagation();
-    navigate(`/apply?job=${encodeURIComponent(job.title)}&dept=${encodeURIComponent(job.dept)}&location=${encodeURIComponent(job.location)}`);
-  }}
-  style={{ background: "linear-gradient(135deg,#00d4ff,#0ea5e9)", border: "none", borderRadius: 10, color: "#000", fontWeight: 800, padding: "12px 28px", cursor: "pointer", fontSize: 14 }}>
-  Apply Now →
-</button>
                   </button>
                 </div>
               )}

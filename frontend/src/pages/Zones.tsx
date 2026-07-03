@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { usePermissions } from '../hooks/usePermissions';
 import { getZones, createZone, updateZone, deleteZone } from '../api/zones';
 import type { Zone } from '../api/zones';
+import { getWarehouses } from '../api/warehouses';
+import type { Warehouse } from '../types/warehouse';
 
 const PAGE_SIZE = 20;
 
@@ -9,6 +11,7 @@ export default function Zones() {
   const { canEditZones, canDeleteAny } = usePermissions();
 
   const [zones, setZones] = useState<Zone[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -16,8 +19,15 @@ export default function Zones() {
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Zone | null>(null);
-  const [form, setForm] = useState({ name: '', capacity: '', warehouse: '' });
+  const [form, setForm] = useState({ name: '', capacity: '', warehouse: '', zone_type: 'A' });
   const [formError, setFormError] = useState('');
+
+  useEffect(() => {
+    getWarehouses().then((data) => setWarehouses(data.results)).catch(() => {});
+  }, []);
+
+  const warehouseName = (id: number) =>
+    warehouses.find((w) => w.id === id)?.name ?? `#${id}`;
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -37,14 +47,14 @@ export default function Zones() {
 
   const openCreate = () => {
     setEditing(null);
-    setForm({ name: '', capacity: '', warehouse: '' });
+    setForm({ name: '', capacity: '', warehouse: warehouses[0] ? String(warehouses[0].id) : '', zone_type: 'A' });
     setFormError('');
     setShowModal(true);
   };
 
   const openEdit = (z: Zone) => {
     setEditing(z);
-    setForm({ name: z.name, capacity: String(z.capacity), warehouse: String(z.warehouse) });
+    setForm({ name: z.name, capacity: String(z.capacity), warehouse: String(z.warehouse), zone_type: z.zone_type ?? 'A' });
     setFormError('');
     setShowModal(true);
   };
@@ -65,7 +75,12 @@ export default function Zones() {
       setFormError('All fields are required.');
       return;
     }
-    const payload = { name: form.name, capacity: Number(form.capacity), warehouse: Number(form.warehouse) };
+    const payload = {
+      name: form.name,
+      capacity: Number(form.capacity),
+      warehouse: Number(form.warehouse),
+      zone_type: form.zone_type as 'A' | 'B',
+    };
     try {
       if (editing) {
         await updateZone(editing.id, payload);
@@ -108,22 +123,28 @@ export default function Zones() {
             <tr>
               <th className="text-left px-4 py-3">ID</th>
               <th className="text-left px-4 py-3">Name</th>
+              <th className="text-left px-4 py-3">Type</th>
               <th className="text-left px-4 py-3">Capacity</th>
-              <th className="text-left px-4 py-3">Warehouse ID</th>
+              <th className="text-left px-4 py-3">Warehouse</th>
               {canEditZones && <th className="text-left px-4 py-3">Actions</th>}
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan={5} className="text-center py-6 text-slate-400">Loading...</td></tr>
+              <tr><td colSpan={6} className="text-center py-6 text-slate-400">Loading...</td></tr>
             ) : zones.length === 0 ? (
-              <tr><td colSpan={5} className="text-center py-6 text-slate-400">No zones found.</td></tr>
+              <tr><td colSpan={6} className="text-center py-6 text-slate-400">No zones found.</td></tr>
             ) : zones.map(z => (
               <tr key={z.id} className="border-t border-slate-700 hover:bg-slate-800/50">
                 <td className="px-4 py-3">{z.id}</td>
                 <td className="px-4 py-3">{z.name}</td>
+                <td className="px-4 py-3">
+                  <span className={`px-2 py-0.5 rounded text-xs font-semibold ${z.zone_type === 'A' ? 'bg-cyan-500/20 text-cyan-300' : 'bg-purple-500/20 text-purple-300'}`}>
+                    Zone {z.zone_type ?? 'A'}
+                  </span>
+                </td>
                 <td className="px-4 py-3">{z.capacity}</td>
-                <td className="px-4 py-3">{z.warehouse}</td>
+                <td className="px-4 py-3">{warehouseName(z.warehouse)}</td>
                 {canEditZones && (
                   <td className="px-4 py-3 space-x-2">
                     <button onClick={() => openEdit(z)} className="text-emerald-400 hover:underline">Edit</button>
@@ -157,12 +178,24 @@ export default function Zones() {
                 <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 text-white focus:outline-none focus:border-emerald-400" />
               </div>
               <div>
+                <label className="block text-sm font-medium mb-1 text-slate-300">Zone Type</label>
+                <select value={form.zone_type} onChange={e => setForm(f => ({ ...f, zone_type: e.target.value }))} className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 text-white focus:outline-none focus:border-emerald-400">
+                  <option value="A">Zone A</option>
+                  <option value="B">Zone B</option>
+                </select>
+              </div>
+              <div>
                 <label className="block text-sm font-medium mb-1 text-slate-300">Capacity</label>
                 <input type="number" value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: e.target.value }))} className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 text-white focus:outline-none focus:border-emerald-400" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-slate-300">Warehouse ID</label>
-                <input type="number" value={form.warehouse} onChange={e => setForm(f => ({ ...f, warehouse: e.target.value }))} className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 text-white focus:outline-none focus:border-emerald-400" />
+                <label className="block text-sm font-medium mb-1 text-slate-300">Warehouse</label>
+                <select value={form.warehouse} onChange={e => setForm(f => ({ ...f, warehouse: e.target.value }))} className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 text-white focus:outline-none focus:border-emerald-400">
+                  {warehouses.length === 0 && <option value="">No warehouses available</option>}
+                  {warehouses.map(w => (
+                    <option key={w.id} value={w.id}>{w.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-5">

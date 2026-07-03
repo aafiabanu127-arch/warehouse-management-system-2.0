@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import PublicNavbar from "../components/PublicNavbar";
 
 const SERVICES = [
   { icon: "📦", title: "3D Space Analysis", desc: "AI-powered volumetric mapping reconstructs your warehouse in real time — dead zones get flagged before they cost you.", color: "#00d4ff" },
@@ -10,12 +10,11 @@ const SERVICES = [
 ];
 
 export default function ServicesPage() {
-  const navigate = useNavigate();
   return (
     <div style={{ background: "#020810", minHeight: "100vh", color: "#fff", fontFamily: "Inter, sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');`}</style>
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "80px 24px" }}>
-        <button onClick={() => navigate("/")} style={{ background: "rgba(0,212,255,0.1)", border: "1px solid rgba(0,212,255,0.3)", color: "#00d4ff", borderRadius: 10, padding: "8px 18px", cursor: "pointer", marginBottom: 48, fontSize: 14 }}>← Back to Home</button>
+      <PublicNavbar />
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "148px 24px 80px" }}>
         <h1 style={{ fontSize: "clamp(32px,5vw,60px)", fontWeight: 900, marginBottom: 16, letterSpacing: -1.5, background: "linear-gradient(135deg,#fff 50%,rgba(255,255,255,0.4))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Our Services</h1>
         <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 17, lineHeight: 1.8, marginBottom: 64, maxWidth: 600 }}>Every module is engineered to reduce waste, accelerate throughput, and give you full visibility.</p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 24 }}>
