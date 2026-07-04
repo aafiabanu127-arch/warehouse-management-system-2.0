@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>myproject2 ER Diagram</title>
+  <style>
+    body { font-family: sans-serif; background: #f9f9f9; padding: 32px; color: #333; }
+    h1 { font-size: 20px; font-weight: 500; margin-bottom: 8px; }
+    p { font-size: 13px; color: #666; margin-bottom: 24px; }
+    #erd { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; }
+    #erd svg { width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+  <h1>myproject2 — ER Diagram</h1>
+  <p>All models and relationships across users, warehouses, inventory, reports, and notifications.</p>
+  <div id="erd"></div>
+
+  <script type="module">
+    import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: false, theme: 'default' });
+
+    const diagram = `erDiagram
+      CUSTOMUSER {
+        int id PK
+        string username
+        string email
+        string role
+        string phone
+        string department
+      }
+      AUDITLOG {
+        int id PK
+        int user_id FK
+        string action
+        string model_name
+        int object_id
+        datetime timestamp
+      }
+      WAREHOUSE {
+        int id PK
+        string name
+        string location
+        float total_capacity
+      }
+      ZONE {
+        int id PK
+        int warehouse_id FK
+        string name
+        string zone_type
+      }
+      RACK {
+        int id PK
+        int zone_id FK
+        string rack_code
+        int num_shelves
+      }
+      SHELF {
+        int id PK
+        int rack_id FK
+        string shelf_code
+        float capacity
+      }
+      CATEGORY {
+        int id PK
+        string name
+        string description
+      }
+      PRODUCT {
+        int id PK
+        int category_id FK
+        string name
+        string sku
+        float unit_volume
+        float unit_weight
+      }
+      INVENTORY {
+        int id PK
+        int product_id FK
+        int shelf_id FK
+        int quantity
+        datetime last_updated
+      }
+      STOCKMOVEMENT {
+        int id PK
+        int product_id FK
+        int performed_by_id FK
+        string movement_type
+        int quantity
+        datetime timestamp
+      }
+      SPACEALLOCATION {
+        int id PK
+        int product_id FK
+        int shelf_id FK
+        float allocated_volume
+        float utilization_pct
+      }
+      STOCKTRANSFERREQUEST {
+        int id PK
+        int product_id FK
+        int from_inventory_id FK
+        int to_inventory_id FK
+        int requested_by_id FK
+        int reviewed_by_id FK
+        string status
+        int quantity
+        datetime reviewed_at
+      }
+      REPORT {
+        int id PK
+        int generated_by_id FK
+        string title
+        string report_type
+        string status
+        datetime completed_at
+      }
+      NOTIFICATION {
+        int id PK
+        int user_id FK
+        string title
+        string notif_type
+        boolean is_read
+        datetime created_at
+      }
+      ALERT {
+        int id PK
+        string title
+        string severity
+        boolean is_active
+        datetime created_at
+      }
+
+      CUSTOMUSER ||--o{ AUDITLOG : "logs"
+      CUSTOMUSER ||--o{ STOCKMOVEMENT : "performs"
+      CUSTOMUSER ||--o{ STOCKTRANSFERREQUEST : "requests"
+      CUSTOMUSER ||--o{ REPORT : "generates"
+      CUSTOMUSER ||--o{ NOTIFICATION : "receives"
+      WAREHOUSE ||--o{ ZONE : "contains"
+      ZONE ||--o{ RACK : "contains"
+      RACK ||--o{ SHELF : "contains"
+      CATEGORY ||--o{ PRODUCT : "groups"
+      PRODUCT ||--o{ INVENTORY : "stored in"
+      PRODUCT ||--o{ STOCKMOVEMENT : "tracked by"
+      PRODUCT ||--o{ SPACEALLOCATION : "allocated in"
+      PRODUCT ||--o{ STOCKTRANSFERREQUEST : "transferred"
+      SHELF ||--o{ INVENTORY : "holds"
+      SHELF ||--o{ SPACEALLOCATION : "allocated to"
+      INVENTORY ||--o{ STOCKTRANSFERREQUEST : "source"
+    `;
+
+    const { svg } = await mermaid.render('erd-svg', diagram);
+    document.getElementById('erd').innerHTML = svg;
+  </script>
+</body>
+</html>

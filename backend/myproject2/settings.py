@@ -2,8 +2,10 @@
 from datetime import timedelta
 import os
 import dj_database_url
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-for-local-only')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
@@ -29,6 +31,7 @@ INSTALLED_APPS = [
     'reports',
     'notifications',
     'applications',
+    'assistant',
 ]
 
 MIDDLEWARE = [
@@ -64,10 +67,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myproject2.wsgi.application'
 
+_database_url = os.environ.get('DATABASE_URL') or f'sqlite:///{BASE_DIR / "db.sqlite3"}'
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', f'sqlite:///{BASE_DIR / "db.sqlite3"}')
-    )
+    'default': dj_database_url.parse(_database_url)
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -117,6 +119,19 @@ SPECTACULAR_SETTINGS = {
 }
 
 AUTH_USER_MODEL = 'users.CustomUser'
+
+# --- AI Assistant ---
+# Pick which provider powers the assistant: 'anthropic' | 'openai' | 'gemini'
+AI_PROVIDER = os.environ.get('AI_PROVIDER', 'anthropic').lower()
+
+ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
+ANTHROPIC_MODEL = os.environ.get('ANTHROPIC_MODEL', 'claude-sonnet-4-6')
+
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
+OPENAI_MODEL = os.environ.get('OPENAI_MODEL', 'gpt-4.1')
+
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-2.5-flash')
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
