@@ -8,7 +8,6 @@ interface ActivityItem {
   id: number;
   time: string;
   text: string;
-  icon: string;
 }
 
 interface SearchResult {
@@ -17,20 +16,25 @@ interface SearchResult {
 }
 
 const allSearchItems: SearchResult[] = [
-  { label: '📊 Dashboard', to: '/dashboard' },
-  { label: '🏭 Warehouses', to: '/warehouses' },
-  { label: '🗺️ Zones', to: '/zones' },
-  { label: '🗄️ Racks', to: '/racks' },
-  { label: '📚 Shelves', to: '/shelves' },
-  { label: '📦 Inventory', to: '/inventory' },
-  { label: '🛒 Products', to: '/products' },
-  { label: '🗂️ Categories', to: '/categories' },
-  { label: '🔄 Stock Movements', to: '/stock-movements' },
-  { label: '📈 Analytics', to: '/analytics' },
-  { label: '✅ Approvals', to: '/approvals' },
-  { label: '📋 Reports', to: '/reports' },
-  { label: '🤖 AI Assistant', to: '/assistant' },
+  { label: 'Dashboard', to: '/dashboard' },
+  { label: 'Warehouses', to: '/warehouses' },
+  { label: 'Zones', to: '/zones' },
+  { label: 'Racks', to: '/racks' },
+  { label: 'Shelves', to: '/shelves' },
+  { label: 'Inventory', to: '/inventory' },
+  { label: 'Products', to: '/products' },
+  { label: 'Categories', to: '/categories' },
+  { label: 'Stock Movements', to: '/stock-movements' },
+  { label: 'Analytics', to: '/analytics' },
+  { label: 'Approvals', to: '/approvals' },
+  { label: 'Reports', to: '/reports' },
+  { label: 'AI Assistant', to: '/assistant' },
 ];
+
+function initials(name?: string) {
+  if (!name) return '?';
+  return name.trim().slice(0, 2).toUpperCase();
+}
 
 export default function Layout() {
   const { user, logout } = useAuth();
@@ -38,21 +42,21 @@ export default function Layout() {
   const navigate = useNavigate();
 
   const navItems = [
-    { to: '/dashboard',       label: '📊 Dashboard',       show: true },
-    { to: '/warehouses',      label: '🏭 Warehouses',      show: true },
-    { to: '/zones',           label: '🗺️ Zones',           show: true },
-    { to: '/racks',           label: '🗄️ Racks',           show: true },
-    { to: '/shelves',         label: '📚 Shelves',         show: true },
-    { to: '/inventory',       label: '📦 Inventory',       show: perms.level >= 6 },
-    { to: '/products',        label: '🛒 Products',        show: true },
-    { to: '/categories',      label: '🗂️ Categories',      show: perms.level >= 6 },
-    { to: '/stock-movements', label: '🔄 Stock Movements', show: perms.level >= 6 },
-    { to: '/analytics',       label: '📈 Analytics',       show: perms.canViewAnalytics },
-    { to: '/reports',         label: '📋 Reports',         show: perms.canViewReports },
-    { to: '/approvals',       label: '✅ Approvals',       show: perms.canViewApprovals },
-    { to: '/notifications',   label: '🔔 Notifications',   show: true },
-    { to: '/assistant',       label: '🤖 AI Assistant',    show: true },
-    { to: '/users',           label: '👥 User Management', show: perms.canViewUsers },
+    { to: '/dashboard',       label: 'Dashboard',       show: true },
+    { to: '/warehouses',      label: 'Warehouses',      show: true },
+    { to: '/zones',           label: 'Zones',           show: true },
+    { to: '/racks',           label: 'Racks',           show: true },
+    { to: '/shelves',         label: 'Shelves',         show: true },
+    { to: '/inventory',       label: 'Inventory',       show: perms.level >= 6 },
+    { to: '/products',        label: 'Products',        show: true },
+    { to: '/categories',      label: 'Categories',      show: perms.level >= 6 },
+    { to: '/stock-movements', label: 'Stock Movements', show: perms.level >= 6 },
+    { to: '/analytics',       label: 'Analytics',       show: perms.canViewAnalytics },
+    { to: '/reports',         label: 'Reports',         show: perms.canViewReports },
+    { to: '/approvals',       label: 'Approvals',       show: perms.canViewApprovals },
+    { to: '/notifications',   label: 'Notifications',   show: true },
+    { to: '/assistant',       label: 'AI Assistant',    show: true },
+    { to: '/users',           label: 'User Management', show: perms.canViewUsers },
   ].filter(item => item.show);
 
   const [sidebarOpen, setSidebarOpen]         = useState(false);
@@ -93,13 +97,11 @@ export default function Layout() {
           id: m.id,
           time: new Date(m.created_at || m.timestamp || Date.now()).toLocaleTimeString(),
           text: `Stock ${m.movement_type || 'movement'}: ${m.product_name || m.product || 'item'} × ${m.quantity}`,
-          icon: '🔄',
         }));
         const approvals: ActivityItem[] = (appRes.data.results || []).map((a: any) => ({
           id: a.id,
           time: new Date(a.created_at || Date.now()).toLocaleTimeString(),
           text: `Approval ${a.status || 'pending'}: ${a.request_type || 'request'} #${a.id}`,
-          icon: '✅',
         }));
         setActivity([...moves, ...approvals].slice(0, 8));
         const pending = (appRes.data.results || []).filter((a: any) => a.status === 'PENDING');
@@ -107,7 +109,6 @@ export default function Layout() {
           id: a.id,
           time: new Date(a.created_at || Date.now()).toLocaleTimeString(),
           text: `Pending approval: ${a.request_type || 'request'} #${a.id}`,
-          icon: '🔔',
         }));
         setNotifications(notifs);
         setNotifCount(notifs.length);
@@ -124,12 +125,18 @@ export default function Layout() {
     setSearchResults(allSearchItems.filter(i => i.label.toLowerCase().includes(q)));
   }, [searchQuery]);
 
-  const glass = 'bg-white/5 backdrop-blur-md border border-white/10';
-  const dropdownGlass = 'bg-slate-900/90 backdrop-blur-xl border border-white/10';
+  const glass = 'bg-white/[0.04] backdrop-blur-2xl border border-white/10';
+  const dropdownGlass = 'bg-slate-950/80 backdrop-blur-2xl border border-white/10';
 
   return (
-    <div className="h-screen bg-black text-white flex overflow-hidden"
-      style={{ background: 'radial-gradient(ellipse at top left, #1a1040 0%, #0a0a1a 50%, #001020 100%)' }}>
+    <div className="h-screen bg-[#05070d] text-slate-100 flex overflow-hidden relative"
+      style={{ background: 'radial-gradient(ellipse at top left, #131a30 0%, #0a0e1a 55%, #05070d 100%)' }}>
+
+      {/* Ambient liquid-glass orbs, professional single-hue tint */}
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="animate-liquid-a absolute -top-32 -left-16 w-[32rem] h-[32rem] rounded-full bg-indigo-500/[0.06] blur-[120px]" />
+        <div className="animate-liquid-b absolute bottom-0 right-0 w-[26rem] h-[26rem] rounded-full bg-slate-400/[0.04] blur-[120px]" />
+      </div>
 
       {/* Sidebar overlay mobile */}
       {sidebarOpen && (
@@ -138,16 +145,21 @@ export default function Layout() {
 
       {/* Sidebar */}
       <aside className={`fixed md:static z-30 h-full w-64 flex flex-col
-        bg-white/5 backdrop-blur-xl border-r border-white/10
+        bg-white/[0.035] backdrop-blur-2xl border-r border-white/10
         transform transition-transform duration-200
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
 
         {/* Logo */}
         <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between">
-          <h2 className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+          <h2 className="text-lg font-semibold tracking-tight text-slate-100">
             Warehouse System
           </h2>
-          <button className="md:hidden text-slate-400 hover:text-white" onClick={() => setSidebarOpen(false)}>✕</button>
+          <button
+            className="md:hidden text-xs font-medium text-slate-400 hover:text-white px-2 py-1 rounded-lg hover:bg-white/10 transition"
+            onClick={() => setSidebarOpen(false)}
+          >
+            Close
+          </button>
         </div>
 
         {/* Nav */}
@@ -160,8 +172,8 @@ export default function Layout() {
               className={({ isActive }) =>
                 `block px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150 ${
                   isActive
-                    ? 'bg-gradient-to-r from-purple-600/60 to-cyan-600/40 text-white border border-white/20 shadow-lg shadow-purple-500/10'
-                    : 'text-slate-400 hover:bg-white/10 hover:text-white'
+                    ? 'bg-indigo-500/[0.14] text-white border border-indigo-400/25 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset]'
+                    : 'text-slate-400 hover:bg-white/[0.06] hover:text-slate-100'
                 }`
               }
             >
@@ -174,13 +186,13 @@ export default function Layout() {
         <div className="px-4 py-4 border-t border-white/10">
           <p className="text-sm text-slate-300">
             {user?.username}{' '}
-            <span className="text-cyan-400">({user?.role})</span>
+            <span className="text-slate-500">({user?.role})</span>
           </p>
           <button
             onClick={logout}
-            className="mt-2 w-full bg-red-500/20 hover:bg-red-500/40 border border-red-500/30 text-red-400 text-sm py-1.5 rounded-xl transition"
+            className="mt-2 w-full bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 text-rose-300 text-sm font-medium py-1.5 rounded-xl transition"
           >
-            🚪 Log Out
+            Log Out
           </button>
         </div>
       </aside>
@@ -190,15 +202,19 @@ export default function Layout() {
 
         {/* Topbar */}
         <header className={`${glass} border-b border-white/10 px-4 py-2 flex items-center gap-3 sticky top-0 z-10`}>
-          <button onClick={() => setSidebarOpen(true)} className="md:hidden text-slate-400 hover:text-white text-xl mr-1">☰</button>
-          <span className="md:hidden font-bold text-sm bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="md:hidden text-xs font-medium text-slate-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/10 transition mr-1"
+          >
+            Menu
+          </button>
+          <span className="md:hidden font-semibold text-sm text-slate-100">
             Warehouse System
           </span>
 
           {/* Search */}
           <div className="relative flex-1 max-w-sm" ref={searchRef}>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10">
-              <span className="text-slate-400">🔍</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/10 focus-within:border-indigo-400/40 transition">
               <input
                 type="text"
                 placeholder="Search pages..."
@@ -208,7 +224,12 @@ export default function Layout() {
                 className="bg-transparent outline-none text-sm w-full text-white placeholder-slate-500"
               />
               {searchQuery && (
-                <button onClick={() => { setSearchQuery(''); setSearchResults([]); }} className="text-slate-400">✕</button>
+                <button
+                  onClick={() => { setSearchQuery(''); setSearchResults([]); }}
+                  className="text-xs text-slate-400 hover:text-white font-medium"
+                >
+                  Clear
+                </button>
               )}
             </div>
             {showSearch && searchResults.length > 0 && (
@@ -217,7 +238,7 @@ export default function Layout() {
                   <button
                     key={r.to}
                     onClick={() => { navigate(r.to); setShowSearch(false); setSearchQuery(''); }}
-                    className="w-full text-left px-4 py-2 text-sm hover:bg-white/10 transition text-slate-300 hover:text-white"
+                    className="w-full text-left px-4 py-2 text-sm hover:bg-white/[0.06] transition text-slate-300 hover:text-white"
                   >
                     {r.label}
                   </button>
@@ -232,23 +253,25 @@ export default function Layout() {
             <div className="relative" ref={activityRef}>
               <button
                 onClick={() => { setShowActivity(!showActivity); setShowNotifications(false); setShowProfile(false); }}
-                className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition text-lg"
-              >🕐</button>
+                className="px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition text-sm font-medium text-slate-300"
+              >
+                Activity
+              </button>
               {showActivity && (
                 <div className={`absolute right-0 top-11 w-80 rounded-xl ${dropdownGlass} shadow-2xl z-50`}>
-                  <div className="px-4 py-2 border-b border-white/10 font-semibold text-sm text-slate-300">Recent Activity</div>
+                  <div className="px-4 py-2 border-b border-white/10 font-medium text-sm text-slate-300">Recent Activity</div>
                   <div className="max-h-72 overflow-y-auto">
                     {activity.length === 0
                       ? <p className="px-4 py-3 text-sm text-slate-500">No recent activity.</p>
                       : activity.map(a => (
-                        <div key={a.id} className="px-4 py-2.5 border-b border-white/5 hover:bg-white/5 transition">
-                          <p className="text-sm text-slate-300">{a.icon} {a.text}</p>
+                        <div key={a.id} className="px-4 py-2.5 border-b border-white/5 hover:bg-white/[0.04] transition">
+                          <p className="text-sm text-slate-300">{a.text}</p>
                           <p className="text-xs text-slate-500 mt-0.5">{a.time}</p>
                         </div>
                       ))}
                   </div>
                   <button onClick={() => { navigate('/stock-movements'); setShowActivity(false); }}
-                    className="w-full text-center text-xs text-cyan-400 hover:text-cyan-300 py-2 transition">
+                    className="w-full text-center text-xs text-indigo-300 hover:text-indigo-200 py-2 transition font-medium">
                     View all stock movements →
                   </button>
                 </div>
@@ -259,30 +282,30 @@ export default function Layout() {
             <div className="relative" ref={notifRef}>
               <button
                 onClick={() => { setShowNotifications(!showNotifications); setShowActivity(false); setShowProfile(false); }}
-                className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition text-lg relative"
+                className="relative px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition text-sm font-medium text-slate-300"
               >
-                🔔
+                Notifications
                 {notifCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                  <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-semibold">
                     {notifCount}
                   </span>
                 )}
               </button>
               {showNotifications && (
                 <div className={`absolute right-0 top-11 w-80 rounded-xl ${dropdownGlass} shadow-2xl z-50`}>
-                  <div className="px-4 py-2 border-b border-white/10 font-semibold text-sm text-slate-300">Notifications</div>
+                  <div className="px-4 py-2 border-b border-white/10 font-medium text-sm text-slate-300">Notifications</div>
                   <div className="max-h-72 overflow-y-auto">
                     {notifications.length === 0
                       ? <p className="px-4 py-3 text-sm text-slate-500">No new notifications.</p>
                       : notifications.map(n => (
-                        <div key={n.id} className="px-4 py-2.5 border-b border-white/5 hover:bg-white/5 transition">
-                          <p className="text-sm text-slate-300">{n.icon} {n.text}</p>
+                        <div key={n.id} className="px-4 py-2.5 border-b border-white/5 hover:bg-white/[0.04] transition">
+                          <p className="text-sm text-slate-300">{n.text}</p>
                           <p className="text-xs text-slate-500 mt-0.5">{n.time}</p>
                         </div>
                       ))}
                   </div>
                   <button onClick={() => { navigate('/notifications'); setShowNotifications(false); setNotifCount(0); }}
-                    className="w-full text-center text-xs text-cyan-400 hover:text-cyan-300 py-2 transition">
+                    className="w-full text-center text-xs text-indigo-300 hover:text-indigo-200 py-2 transition font-medium">
                     View all notifications →
                   </button>
                 </div>
@@ -293,27 +316,29 @@ export default function Layout() {
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => { setShowProfile(!showProfile); setShowNotifications(false); setShowActivity(false); }}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition"
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition"
               >
-                <span className="text-lg">👤</span>
-                <span className="text-sm font-medium hidden sm:block">{user?.username}</span>
+                <span className="w-6 h-6 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-200 text-[11px] font-semibold flex items-center justify-center">
+                  {initials(user?.username)}
+                </span>
+                <span className="text-sm font-medium hidden sm:block text-slate-300">{user?.username}</span>
               </button>
               {showProfile && (
                 <div className={`absolute right-0 top-11 w-64 rounded-xl ${dropdownGlass} shadow-2xl z-50`}>
                   <div className="px-4 py-3 border-b border-white/10">
-                    <p className="font-semibold text-sm text-white">{user?.username}</p>
+                    <p className="font-medium text-sm text-white">{user?.username}</p>
                     <p className="text-xs text-slate-400">{user?.email}</p>
-                    <span className="inline-block mt-1 text-xs bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full">{user?.role}</span>
+                    <span className="inline-block mt-1 text-xs bg-indigo-500/15 text-indigo-300 border border-indigo-400/20 px-2 py-0.5 rounded-full">{user?.role}</span>
                   </div>
                   <div className="px-2 py-2 space-y-1">
-                    <div className="px-3 py-2 rounded text-sm text-slate-400">📧 {user?.email || 'No email'}</div>
-                    <div className="px-3 py-2 rounded text-sm text-slate-400">🏢 {user?.department || 'No department'}</div>
-                    <div className="px-3 py-2 rounded text-sm text-slate-400">📱 {user?.phone || 'No phone'}</div>
+                    <div className="px-3 py-2 rounded text-sm text-slate-400">Email: {user?.email || 'Not set'}</div>
+                    <div className="px-3 py-2 rounded text-sm text-slate-400">Department: {user?.department || 'Not set'}</div>
+                    <div className="px-3 py-2 rounded text-sm text-slate-400">Phone: {user?.phone || 'Not set'}</div>
                   </div>
                   <div className="px-2 py-2 border-t border-white/10">
                     <button onClick={() => { logout(); setShowProfile(false); }}
-                      className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition">
-                      🚪 Log Out
+                      className="w-full text-left px-3 py-2 text-sm font-medium text-rose-300 hover:bg-rose-500/10 rounded-lg transition">
+                      Log Out
                     </button>
                   </div>
                 </div>

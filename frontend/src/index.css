@@ -1,1 +1,17 @@
 @import 'tailwindcss';
+
+/* Liquid-glass ambient motion — slow, subtle drift for background orbs */
+@keyframes liquid-drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(4%, -6%, 0) scale(1.08); }
+}
+@keyframes liquid-drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(-5%, 5%, 0) scale(1.1); }
+}
+.animate-liquid-a { animation: liquid-drift-a 24s ease-in-out infinite; }
+.animate-liquid-b { animation: liquid-drift-b 28s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-liquid-a, .animate-liquid-b { animation: none; }
+}
