@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import apiClient from "../api/client";
 
 export default function JobApplicationPage() {
   const navigate = useNavigate();
@@ -33,18 +34,15 @@ export default function JobApplicationPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("http://localhost:8000/api/applications/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, job_title: jobTitle, department: jobDept, location: jobLocation }),
+      await apiClient.post("/applications/", {
+        ...form,
+        job_title: jobTitle,
+        department: jobDept,
+        location: jobLocation,
       });
-      if (res.ok) {
-        setSubmitted(true);
-      } else {
-        setError("Submission failed. Please try again.");
-      }
+      setSubmitted(true);
     } catch {
-      setError("Cannot connect to server. Please try again later.");
+      setError("Submission failed. Please try again.");
     }
     setLoading(false);
   };

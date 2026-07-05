@@ -1,7 +1,5 @@
-import { useNavigate } from "react-router-dom";
 import PublicNavbar from "../components/PublicNavbar";
 export default function AboutPage() {
-  const navigate = useNavigate();
   return (
     <div style={{ background: "#020810", minHeight: "100vh", color: "#fff", fontFamily: "Inter, sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');`}</style>

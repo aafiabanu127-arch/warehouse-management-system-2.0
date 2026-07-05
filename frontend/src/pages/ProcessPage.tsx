@@ -1,5 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
+import PublicNavbar from "../components/PublicNavbar";
 
 const STEPS = [
   { num: "01", title: "Discovery Call", desc: "30-minute deep dive into your warehouse layout, throughput, and pain points.", icon: "🔍" },
@@ -13,7 +14,8 @@ export default function ProcessPage() {
   return (
     <div style={{ background: "#020810", minHeight: "100vh", color: "#fff", fontFamily: "Inter, sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');`}</style>
-      <div style={{ maxWidth: 900, margin: "0 auto", padding: "80px 24px" }}>
+      <PublicNavbar />
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: "148px 24px 80px" }}>
         <button onClick={() => navigate("/")} style={{ background: "rgba(0,212,255,0.1)", border: "1px solid rgba(0,212,255,0.3)", color: "#00d4ff", borderRadius: 10, padding: "8px 18px", cursor: "pointer", marginBottom: 48, fontSize: 14 }}>← Back to Home</button>
         <h1 style={{ fontSize: "clamp(32px,5vw,60px)", fontWeight: 900, marginBottom: 16, letterSpacing: -1.5, background: "linear-gradient(135deg,#fff 50%,rgba(255,255,255,0.4))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>How It Works</h1>
         <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 17, lineHeight: 1.8, marginBottom: 64, maxWidth: 600 }}>From signed contract to live dashboard in 7 days. No month-long implementations. No army of consultants.</p>

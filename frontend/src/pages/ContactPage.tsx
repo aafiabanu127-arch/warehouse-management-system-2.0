@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import PublicNavbar from "../components/PublicNavbar";
 
 export default function ContactPage() {
-  const navigate = useNavigate();
   const [sent, setSent] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", company: "", message: "" });
   return (

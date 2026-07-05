@@ -16,6 +16,9 @@ class Warehouse(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['id']
+
     def __str__(self):
         return self.name
 
@@ -35,6 +38,9 @@ class Zone(models.Model):
     zone_type = models.CharField(max_length=1, choices=ZONE_TYPES, default='A')
     capacity = models.FloatField()
 
+    class Meta:
+        ordering = ['id']
+
     def __str__(self):
         return f"{self.warehouse.name} - {self.name} ({self.get_zone_type_display()})"
 
@@ -47,6 +53,9 @@ class Rack(models.Model):
     )
     rack_code = models.CharField(max_length=50, unique=True)
     capacity = models.FloatField()
+
+    class Meta:
+        ordering = ['id']
 
     def __str__(self):
         return self.rack_code
@@ -61,6 +70,9 @@ class Shelf(models.Model):
     shelf_code = models.CharField(max_length=50)
     capacity = models.FloatField()
     occupied_capacity = models.FloatField(default=0)
+
+    class Meta:
+        ordering = ['id']
 
     def __str__(self):
         return self.shelf_code
