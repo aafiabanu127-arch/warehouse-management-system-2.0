@@ -1,5 +1,10 @@
 @import 'tailwindcss';
 
+/* Enable class-based dark mode (Tailwind v4 defaults to the OS
+   prefers-color-scheme media query — we want an explicit toggle instead,
+   scoped to whichever element carries the `.dark` class). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Liquid-glass ambient motion — slow, subtle drift for background orbs */
 @keyframes liquid-drift-a {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
