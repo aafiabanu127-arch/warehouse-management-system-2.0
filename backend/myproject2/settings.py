@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 from datetime import timedelta
 import os
 import dj_database_url
@@ -7,8 +7,17 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-for-local-only')
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    if os.environ.get('DEBUG', 'False') == 'True':
+        SECRET_KEY = 'django-insecure-fallback-for-local-only'
+    else:
+        raise ValueError('SECRET_KEY environment variable must be set when DEBUG=False')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 INSTALLED_APPS = [
@@ -90,11 +99,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://warehouse-frontend.onrender.com",
-]
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173,https://warehouse-frontend.onrender.com').split(',')
 CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
@@ -180,3 +185,6 @@ LOGGING = {
 
 
 INSTALLED_APPS += ['careers']
+
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://warehouse-backend.onrender.com,https://warehouse-frontend.onrender.com').split(',')
+
