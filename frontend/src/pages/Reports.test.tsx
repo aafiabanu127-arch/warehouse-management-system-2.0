@@ -43,8 +43,8 @@ describe('Reports page', () => {
       </MemoryRouter>
     );
     await waitFor(() => {
-      expect(screen.getByText('INVENTORY')).toBeInTheDocument();
-      expect(screen.getByText('STOCK')).toBeInTheDocument();
+      expect(screen.getByText('Inventory Report')).toBeInTheDocument();
+      expect(screen.getByText('Stock Movements')).toBeInTheDocument();
     });
   });
 

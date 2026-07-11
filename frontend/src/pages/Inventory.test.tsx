@@ -1,15 +1,35 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+﻿import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Inventory from './Inventory';
 
 vi.mock('../api/inventory', () => ({
-  getInventory: vi.fn().mockResolvedValue({
+  getInventoryItems: vi.fn().mockResolvedValue({
     results: [
-      { id: 1, product_name: 'Widget A', quantity: 100, warehouse_name: 'Main Warehouse' },
-      { id: 2, product_name: 'Widget B', quantity: 5,   warehouse_name: 'South Hub' },
+      { id: 1, product: 1, shelf: 1, quantity: 100 },
+      { id: 2, product: 2, shelf: 1, quantity: 5 },
     ],
     count: 2,
+  }),
+  createInventoryItem: vi.fn(),
+  updateInventoryItem: vi.fn(),
+  deleteInventoryItem: vi.fn(),
+}));
+
+vi.mock('../api/products', () => ({
+  getProducts: vi.fn().mockResolvedValue({
+    results: [
+      { id: 1, name: 'Widget A' },
+      { id: 2, name: 'Widget B' },
+    ],
+  }),
+}));
+
+vi.mock('../api/shelves', () => ({
+  getShelves: vi.fn().mockResolvedValue({
+    results: [
+      { id: 1, shelf_code: 'A1' },
+    ],
   }),
 }));
 
@@ -31,7 +51,7 @@ describe('Inventory page', () => {
       </MemoryRouter>
     );
     await waitFor(() => {
-      expect(screen.getByText(/inventory/i)).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /inventory/i })).toBeInTheDocument();
     });
   });
 
