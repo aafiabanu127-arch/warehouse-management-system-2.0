@@ -42,3 +42,4 @@ frontend/dist/
 .idea/
 *.swp
 *.swo
+venv/

@@ -141,7 +141,7 @@ SPECTACULAR_SETTINGS = {
 AUTH_USER_MODEL = 'users.CustomUser'
 
 # --- AI Assistant ---
-# Pick which provider powers the assistant: 'anthropic' | 'openai' | 'gemini'
+# Pick which provider powers the assistant: 'anthropic' | 'openai' | 'gemini' | 'groq'
 AI_PROVIDER = os.environ.get('AI_PROVIDER', 'anthropic').lower()
 
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
@@ -152,6 +152,9 @@ OPENAI_MODEL = os.environ.get('OPENAI_MODEL', 'gpt-4.1')
 
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
 GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-2.5-flash')
+
+GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
+GROQ_MODEL = os.environ.get('GROQ_MODEL', 'llama-3.3-70b-versatile')
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),

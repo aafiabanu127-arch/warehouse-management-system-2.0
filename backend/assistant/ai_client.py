@@ -1,7 +1,7 @@
 """
 Provider-agnostic AI client for the warehouse assistant.
 
-Pick the provider with the AI_PROVIDER setting ('anthropic' | 'openai' | 'gemini').
+Pick the provider with the AI_PROVIDER setting ('anthropic' | 'openai' | 'gemini' | 'groq').
 Each provider function implements the same tool-use loop against tools.TOOL_SPECS
 and returns the same shape: {"reply": str, "tools_used": [str, ...]}.
 
@@ -76,8 +76,10 @@ def run_chat(user, history, user_message):
         return _run_openai(user, history, user_message)
     if provider == "gemini":
         return _run_gemini(user, history, user_message)
+    if provider == "groq":
+        return _run_groq(user, history, user_message)
     raise RuntimeError(
-        f"Unknown AI_PROVIDER '{provider}'. Set it to 'anthropic', 'openai', or 'gemini'."
+        f"Unknown AI_PROVIDER '{provider}'. Set it to 'anthropic', 'openai', 'gemini', or 'groq'."
     )
 
 
@@ -201,41 +203,108 @@ def _run_openai(user, history, user_message):
 
 
 # ---------------------------------------------------------------------------
+# GROQ (Llama / Kimi / etc. via Groq's OpenAI-compatible endpoint)
+# ---------------------------------------------------------------------------
+
+def _run_groq(user, history, user_message):
+    # Groq exposes an OpenAI-compatible chat completions API, so we reuse the
+    # openai SDK and tool-call loop, just pointed at Groq's base_url with a
+    # Groq API key and model name.
+    from openai import OpenAI
+
+    api_key = getattr(settings, "GROQ_API_KEY", None)
+    if not api_key:
+        raise RuntimeError("GROQ_API_KEY is not configured on the server.")
+    client = OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
+    model = getattr(settings, "GROQ_MODEL", "llama-3.3-70b-versatile")
+
+    messages = [{"role": "system", "content": _system_prompt(user)}]
+    messages += [{"role": h["role"], "content": h["content"]} for h in history]
+    messages.append({"role": "user", "content": user_message})
+
+    tools_used = []
+    for _ in range(MAX_TOOL_ITERATIONS):
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            tools=_openai_tools(),
+        )
+        choice = response.choices[0]
+        msg = choice.message
+
+        if not msg.tool_calls:
+            return {"reply": (msg.content or "").strip() or "I don't have a response for that.",
+                    "tools_used": tools_used}
+
+        messages.append({
+            "role": "assistant",
+            "content": msg.content,
+            "tool_calls": [tc.model_dump() for tc in msg.tool_calls],
+        })
+        for tc in msg.tool_calls:
+            tools_used.append(tc.function.name)
+            try:
+                args = json.loads(tc.function.arguments or "{}")
+            except json.JSONDecodeError:
+                args = {}
+            result = _execute_tool(tc.function.name, args, user)
+            messages.append({
+                "role": "tool",
+                "tool_call_id": tc.id,
+                "content": json.dumps(result, default=str),
+            })
+
+    return {"reply": _exhausted_message(), "tools_used": tools_used}
+
+
+# ---------------------------------------------------------------------------
 # GEMINI (Google)
 # ---------------------------------------------------------------------------
 
 def _gemini_tools():
-    # Gemini's function schema is JSON-schema-like but doesn't want a bare
-    # empty "properties": {} to be missing; passing the same input_schema works.
-    return [{
-        "function_declarations": [
-            {"name": t["name"], "description": t["description"], "parameters": t["input_schema"]}
-            for t in TOOL_SPECS
-        ]
-    }]
+    from google.genai import types
+
+    return [
+        types.Tool(
+            function_declarations=[
+                types.FunctionDeclaration(
+                    name=t["name"],
+                    description=t["description"],
+                    parameters=t["input_schema"],
+                )
+                for t in TOOL_SPECS
+            ]
+        )
+    ]
 
 
 def _run_gemini(user, history, user_message):
-    import google.generativeai as genai
+    # Uses the current `google-genai` SDK (the old `google.generativeai`
+    # package is deprecated and rejects the newer "AQ."-prefixed Auth Key
+    # format that Google AI Studio now issues by default).
+    from google import genai
+    from google.genai import types
 
     api_key = getattr(settings, "GEMINI_API_KEY", None)
     if not api_key:
         raise RuntimeError("GEMINI_API_KEY is not configured on the server.")
-    genai.configure(api_key=api_key)
+    client = genai.Client(api_key=api_key)
     model_name = getattr(settings, "GEMINI_MODEL", "gemini-2.5-flash")
-
-    model = genai.GenerativeModel(
-        model_name=model_name,
-        system_instruction=_system_prompt(user),
-        tools=_gemini_tools(),
-    )
 
     # Gemini chat history uses roles "user" / "model"
     gemini_history = [
-        {"role": ("model" if h["role"] == "assistant" else "user"), "parts": [h["content"]]}
+        types.Content(
+            role=("model" if h["role"] == "assistant" else "user"),
+            parts=[types.Part(text=h["content"])],
+        )
         for h in history
     ]
-    chat = model.start_chat(history=gemini_history)
+
+    config = types.GenerateContentConfig(
+        system_instruction=_system_prompt(user),
+        tools=_gemini_tools(),
+    )
+    chat = client.chats.create(model=model_name, history=gemini_history, config=config)
 
     tools_used = []
     message_to_send = user_message
@@ -245,7 +314,7 @@ def _run_gemini(user, history, user_message):
 
         function_calls = [p.function_call for p in parts if getattr(p, "function_call", None)]
         if not function_calls:
-            text = "".join(getattr(p, "text", "") for p in parts).strip()
+            text = "".join(getattr(p, "text", "") or "" for p in parts).strip()
             return {"reply": text or "I don't have a response for that.", "tools_used": tools_used}
 
         response_parts = []
@@ -254,17 +323,14 @@ def _run_gemini(user, history, user_message):
             args = dict(fc.args) if fc.args else {}
             result = _execute_tool(fc.name, args, user)
             response_parts.append(
-                genai.protos.Part(
-                    function_response=genai.protos.FunctionResponse(
-                        name=fc.name,
-                        response={"result": json.dumps(result, default=str)},
-                    )
+                types.Part.from_function_response(
+                    name=fc.name,
+                    response={"result": json.dumps(result, default=str)},
                 )
             )
         message_to_send = response_parts
 
     return {"reply": _exhausted_message(), "tools_used": tools_used}
-
 
 def _exhausted_message():
     return (
