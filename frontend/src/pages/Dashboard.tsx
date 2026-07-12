@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import type { ReactElement } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
@@ -6,7 +7,12 @@ import { getDashboardSummary } from '../api/dashboard';
 import type { DashboardSummary } from '../types/dashboard';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+  AreaChart, Area,
 } from 'recharts';
+import {
+  WarehouseIcon, PackageIcon, BoxIcon, AlertTriangleIcon, ArrowDownIcon, ArrowUpIcon,
+  ShuffleIcon, AnalyticsIcon, CheckShieldIcon, ReportIcon, SparkleIcon,
+} from '../components/icons';
 
 type ThemeMode = 'light' | 'dark';
 const THEME_KEY = 'dashboard-theme';
@@ -32,7 +38,7 @@ function ThemeToggle({ theme, onToggle }: { theme: ThemeMode; onToggle: () => vo
       aria-label="Toggle light and dark mode"
       className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-medium transition
         border border-slate-200 bg-white text-slate-600 hover:bg-slate-50
-        dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300 dark:hover:bg-white/[0.08]"
+        dark:border-blue-400/[0.1] dark:bg-white/[0.04] dark:text-slate-300 dark:hover:bg-white/[0.08]"
     >
       {isDark ? (
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -49,44 +55,113 @@ function ThemeToggle({ theme, onToggle }: { theme: ThemeMode; onToggle: () => vo
   );
 }
 
-// Professional, restrained accent set — each stat keeps one semantic tone
-// instead of a rainbow of neon gradients.
+// Ocean palette — each stat keeps one semantic tone drawn from the
+// Ocean (#0F1F40) reference swatch instead of a rainbow of neon gradients.
 const CARDS = [
-  { valueColor: 'text-slate-900 dark:text-slate-100', accent: 'bg-indigo-400' },
-  { valueColor: 'text-slate-900 dark:text-slate-100', accent: 'bg-sky-400' },
-  { valueColor: 'text-slate-900 dark:text-slate-100', accent: 'bg-slate-400 dark:bg-slate-300' },
-  { valueColor: 'text-amber-600 dark:text-amber-300', accent: 'bg-amber-400' },
+  { valueColor: 'text-slate-900 dark:text-slate-100', icon: WarehouseIcon, badge: 'bg-blue-500/15 text-blue-300 border-blue-400/25' },
+  { valueColor: 'text-slate-900 dark:text-slate-100', icon: PackageIcon,   badge: 'bg-blue-500/15 text-blue-300 border-blue-400/25' },
+  { valueColor: 'text-slate-900 dark:text-slate-100', icon: BoxIcon,       badge: 'bg-cyan-500/15 text-cyan-300 border-cyan-400/25' },
+  { valueColor: 'text-amber-600 dark:text-amber-300', icon: AlertTriangleIcon, badge: 'bg-amber-500/15 text-amber-300 border-amber-400/25' },
 ];
 
-function StatCard({ label, value, valueColor, accent }: {
-  label: string; value: string | number; valueColor: string; accent: string;
+function StatCard({ label, value, valueColor, icon: Icon, badge }: {
+  label: string; value: string | number; valueColor: string;
+  icon: (p: { className?: string }) => ReactElement; badge: string;
 }) {
   return (
     <div className="relative rounded-3xl border overflow-hidden
       border-slate-200 bg-white shadow-sm
-      dark:border-white/10 dark:bg-white/[0.045] dark:backdrop-blur-2xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
+      dark:border-blue-400/[0.1] dark:bg-white/[0.045] dark:backdrop-blur-2xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
       {/* glass specular highlight, dark mode only */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px hidden dark:block bg-gradient-to-r from-transparent via-white/40 to-transparent" />
       <div className="pointer-events-none absolute inset-0 hidden dark:block bg-gradient-to-br from-white/[0.05] to-transparent" />
       <div className="relative z-10 p-6">
-        <div className="flex items-center gap-2 mb-3">
-          <span className={`w-1.5 h-1.5 rounded-full ${accent}`} />
-          <p className="text-xs font-medium tracking-wider uppercase text-slate-500 dark:text-slate-400">{label}</p>
+        <div className="flex items-center justify-between mb-4">
+          <span className={`w-9 h-9 rounded-xl border flex items-center justify-center ${badge}`}>
+            <Icon className="w-4 h-4" />
+          </span>
         </div>
+        <p className="text-xs font-medium tracking-wider uppercase text-slate-500 dark:text-slate-400 mb-1.5">{label}</p>
         <p className={`text-3xl font-semibold tracking-tight ${valueColor}`}>{value}</p>
       </div>
     </div>
   );
 }
 
-function InsightCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function InsightCard({ label, value, sub, icon: Icon, badge, chart }: {
+  label: string; value: string; sub?: string;
+  icon?: (p: { className?: string }) => ReactElement; badge?: string;
+  chart?: ReactElement;
+}) {
   return (
     <div className="relative rounded-2xl border p-4
       border-slate-200 bg-slate-50
-      dark:border-white/10 dark:bg-white/[0.03] dark:backdrop-blur-xl">
-      <p className="text-xs uppercase tracking-wider mb-1.5 text-slate-500 dark:text-slate-500">{label}</p>
+      dark:border-blue-400/[0.1] dark:bg-white/[0.03] dark:backdrop-blur-xl">
+      <div className="flex items-start justify-between mb-1.5">
+        <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-500">{label}</p>
+        {Icon && badge && (
+          <span className={`w-7 h-7 rounded-lg border flex items-center justify-center shrink-0 ${badge}`}>
+            <Icon className="w-3.5 h-3.5" />
+          </span>
+        )}
+      </div>
       <p className="text-xl font-semibold text-slate-900 dark:text-slate-100">{value}</p>
       {sub && <p className="text-xs mt-1 text-slate-500 dark:text-slate-500">{sub}</p>}
+      {chart}
+    </div>
+  );
+}
+
+// Small ambient sparkline for the Movements Today card — visual texture only,
+// not a precise timeline, so we bucket the recent movements payload as-is.
+function MovementsSparkline({ movements }: { movements: DashboardSummary['recent_movements'] }) {
+  if (!movements.length) return null;
+  const points = movements
+    .slice()
+    .reverse()
+    .map((m, i) => ({ i, qty: m.quantity }));
+
+  return (
+    <div className="h-9 -mx-1 mt-1">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={points} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
+          <defs>
+            <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#38bdf8" stopOpacity={0.5} />
+              <stop offset="100%" stopColor="#38bdf8" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <Area type="monotone" dataKey="qty" stroke="#38bdf8" strokeWidth={1.5} fill="url(#sparkGrad)" />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+// Signature element: an Ocean-gradient progress ring for average utilization,
+// standing in for the plain "—" placeholder used elsewhere.
+function UtilizationRing({ percent }: { percent: number | null }) {
+  const r = 15;
+  const c = 2 * Math.PI * r;
+  const pct = percent ?? 0;
+  const offset = c - (pct / 100) * c;
+  return (
+    <div className="relative w-9 h-9 shrink-0">
+      <svg viewBox="0 0 36 36" className="w-9 h-9 -rotate-90">
+        <circle cx="18" cy="18" r={r} fill="none" stroke="currentColor" strokeWidth="3.5" className="text-slate-200 dark:text-white/[0.08]" />
+        {percent !== null && (
+          <circle
+            cx="18" cy="18" r={r} fill="none" strokeWidth="3.5" strokeLinecap="round"
+            stroke="url(#oceanRingGrad)" strokeDasharray={c} strokeDashoffset={offset}
+          />
+        )}
+        <defs>
+          <linearGradient id="oceanRingGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#38bdf8" />
+            <stop offset="100%" stopColor="#2563eb" />
+          </linearGradient>
+        </defs>
+      </svg>
     </div>
   );
 }
@@ -96,19 +171,25 @@ interface QuickAction {
   title: string;
   description: string;
   show: boolean;
+  icon: (p: { className?: string }) => ReactElement;
 }
 
 function QuickActionCard({ action }: { action: QuickAction }) {
+  const Icon = action.icon;
   return (
     <Link
       to={action.to}
       className="group relative rounded-2xl border p-4 transition-colors block
-        border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-indigo-300
-        dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06] dark:hover:border-indigo-400/25 dark:backdrop-blur-xl"
+        border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-blue-300
+        dark:border-blue-400/[0.1] dark:bg-white/[0.03] dark:hover:bg-white/[0.06] dark:hover:border-blue-400/25 dark:backdrop-blur-xl"
     >
+      <span className="w-9 h-9 rounded-xl border flex items-center justify-center mb-3
+        bg-blue-500/15 text-blue-300 border-blue-400/25">
+        <Icon className="w-4 h-4" />
+      </span>
       <p className="text-sm font-medium text-slate-900 group-hover:text-slate-950 dark:text-slate-100 dark:group-hover:text-white">{action.title}</p>
       <p className="text-xs mt-1 leading-relaxed text-slate-500 dark:text-slate-500">{action.description}</p>
-      <span className="inline-block mt-3 text-xs font-medium text-indigo-600 group-hover:text-indigo-700 dark:text-indigo-300 dark:group-hover:text-indigo-200">
+      <span className="inline-block mt-3 text-xs font-medium text-blue-600 group-hover:text-blue-700 dark:text-blue-300 dark:group-hover:text-blue-200">
         Open →
       </span>
     </Link>
@@ -175,43 +256,49 @@ export default function Dashboard() {
       title: 'AI Assistant',
       description: 'Ask questions about stock levels, movements, or get help navigating the system.',
       show: true,
+      icon: SparkleIcon,
     },
     {
       to: '/stock-movements',
       title: 'Stock Movements',
       description: 'Log or review inbound and outbound inventory activity.',
       show: perms.level >= 6,
+      icon: ShuffleIcon,
     },
     {
       to: '/analytics',
       title: 'Analytics',
       description: 'Deeper trends across warehouses, products, and turnover.',
       show: perms.canViewAnalytics,
+      icon: AnalyticsIcon,
     },
     {
       to: '/approvals',
       title: 'Approvals',
       description: 'Review pending requests waiting on your decision.',
       show: perms.canViewApprovals,
+      icon: CheckShieldIcon,
     },
     {
       to: '/reports',
       title: 'Reports',
       description: 'Generate and export warehouse performance reports.',
       show: perms.canViewReports,
+      icon: ReportIcon,
     },
     {
       to: '/inventory',
       title: 'Inventory',
       description: 'Browse current stock across every warehouse.',
       show: perms.level >= 6,
+      icon: BoxIcon,
     },
   ].filter(a => a.show);
 
   const isDark = theme === 'dark';
   const chartColors = isDark
-    ? { grid: '#ffffff08', axis: '#94a3b8', tooltipBg: 'rgba(15,23,42,0.9)', tooltipBorder: 'rgba(129,140,248,0.25)', tooltipText: '#e2e8f0' }
-    : { grid: '#0000000c', axis: '#64748b', tooltipBg: 'rgba(255,255,255,0.97)', tooltipBorder: 'rgba(99,102,241,0.25)', tooltipText: '#1e293b' };
+    ? { grid: '#ffffff08', axis: '#94a3b8', tooltipBg: 'rgba(11,23,48,0.92)', tooltipBorder: 'rgba(56,189,248,0.25)', tooltipText: '#e2e8f0' }
+    : { grid: '#0000000c', axis: '#64748b', tooltipBg: 'rgba(255,255,255,0.97)', tooltipBorder: 'rgba(37,99,235,0.25)', tooltipText: '#1e293b' };
 
   return (
     <div className={isDark ? 'dark' : ''}>
@@ -219,8 +306,8 @@ export default function Dashboard() {
 
         {/* Ambient liquid-glass background accents, dark mode only */}
         <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden hidden dark:block">
-          <div className="animate-liquid-a absolute -top-24 left-[8%] w-[28rem] h-[28rem] rounded-full bg-indigo-500/10 blur-[110px]" />
-          <div className="animate-liquid-b absolute top-1/3 right-[5%] w-[24rem] h-[24rem] rounded-full bg-sky-400/[0.07] blur-[110px]" />
+          <div className="animate-liquid-a absolute -top-24 left-[8%] w-[28rem] h-[28rem] rounded-full bg-blue-500/[0.09] blur-[110px]" />
+          <div className="animate-liquid-b absolute top-1/3 right-[5%] w-[24rem] h-[24rem] rounded-full bg-cyan-400/[0.06] blur-[110px]" />
         </div>
 
         {denied && (
@@ -261,21 +348,27 @@ export default function Dashboard() {
                   label="Avg. Utilization"
                   value={data.warehouse_utilization.length ? `${insights.avgUtilization}%` : '—'}
                   sub={insights.busiest ? `Busiest: ${insights.busiest.name}` : 'No warehouse data'}
+                  chart={<UtilizationRing percent={data.warehouse_utilization.length ? insights.avgUtilization : null} />}
                 />
                 <InsightCard
                   label="Movements Today"
                   value={String(insights.movementsToday)}
                   sub="Based on recent activity"
+                  chart={<MovementsSparkline movements={data.recent_movements} />}
                 />
                 <InsightCard
                   label="Recent Stock In"
                   value={String(insights.stockIn)}
                   sub="Of last recorded movements"
+                  icon={ArrowDownIcon}
+                  badge="bg-emerald-500/15 text-emerald-300 border-emerald-400/25"
                 />
                 <InsightCard
                   label="Recent Stock Out"
                   value={String(insights.stockOut)}
                   sub="Of last recorded movements"
+                  icon={ArrowUpIcon}
+                  badge="bg-rose-500/15 text-rose-300 border-rose-400/25"
                 />
               </div>
             )}
@@ -284,11 +377,11 @@ export default function Dashboard() {
             {quickActions.length > 0 && (
               <div className="relative rounded-3xl border overflow-hidden
                 border-slate-200 bg-white shadow-sm
-                dark:border-white/10 dark:bg-white/[0.03] dark:backdrop-blur-2xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
+                dark:border-blue-400/[0.1] dark:bg-white/[0.03] dark:backdrop-blur-2xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-px hidden dark:block bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                 <div className="relative z-10 p-5">
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="w-1 h-5 rounded-full bg-indigo-500/70 dark:bg-indigo-400/70" />
+                    <div className="w-1 h-5 rounded-full bg-blue-500/70 dark:bg-blue-400/70" />
                     <h2 className="text-base font-medium text-slate-900 dark:text-slate-100">Quick Actions</h2>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -302,11 +395,11 @@ export default function Dashboard() {
 
             <div className="relative rounded-3xl border overflow-hidden
               border-slate-200 bg-white shadow-sm
-              dark:border-white/10 dark:bg-white/[0.035] dark:backdrop-blur-2xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
+              dark:border-blue-400/[0.1] dark:bg-white/[0.035] dark:backdrop-blur-2xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
               <div className="pointer-events-none absolute inset-x-0 top-0 h-px hidden dark:block bg-gradient-to-r from-transparent via-white/30 to-transparent" />
               <div className="relative z-10 p-5">
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-1 h-5 rounded-full bg-indigo-500/70 dark:bg-indigo-400/70" />
+                  <div className="w-1 h-5 rounded-full bg-blue-500/70 dark:bg-blue-400/70" />
                   <h2 className="text-base font-medium text-slate-900 dark:text-slate-100">Warehouse Utilization (%)</h2>
                 </div>
                 {data.warehouse_utilization.length === 0 ? (
@@ -315,9 +408,9 @@ export default function Dashboard() {
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={data.warehouse_utilization}>
                       <defs>
-                        <linearGradient id="indigoGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#818cf8" stopOpacity={0.9} />
-                          <stop offset="100%" stopColor="#312e81" stopOpacity={0.35} />
+                        <linearGradient id="oceanBarGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#38bdf8" stopOpacity={0.9} />
+                          <stop offset="100%" stopColor="#0f1f40" stopOpacity={0.45} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
@@ -331,9 +424,9 @@ export default function Dashboard() {
                           color: chartColors.tooltipText,
                         }}
                       />
-                      <Bar dataKey="utilization_percent" fill="url(#indigoGrad)" radius={[6, 6, 0, 0]}>
+                      <Bar dataKey="utilization_percent" fill="url(#oceanBarGrad)" radius={[6, 6, 0, 0]}>
                         {data.warehouse_utilization.map((_, i) => (
-                          <Cell key={i} fill="url(#indigoGrad)" />
+                          <Cell key={i} fill="url(#oceanBarGrad)" />
                         ))}
                       </Bar>
                     </BarChart>
@@ -344,10 +437,10 @@ export default function Dashboard() {
 
             <div className="relative rounded-3xl border overflow-hidden
               border-slate-200 bg-white shadow-sm
-              dark:border-white/10 dark:bg-white/[0.035] dark:backdrop-blur-2xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
+              dark:border-blue-400/[0.1] dark:bg-white/[0.035] dark:backdrop-blur-2xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
               <div className="pointer-events-none absolute inset-x-0 top-0 h-px hidden dark:block bg-gradient-to-r from-transparent via-white/30 to-transparent" />
               <div className="relative z-10">
-                <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-200 dark:border-white/10">
+                <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-200 dark:border-blue-400/[0.08]">
                   <div className="w-1 h-5 rounded-full bg-slate-400/60 dark:bg-slate-300/60" />
                   <h2 className="text-base font-medium text-slate-900 dark:text-slate-100">Recent Stock Movements</h2>
                 </div>
