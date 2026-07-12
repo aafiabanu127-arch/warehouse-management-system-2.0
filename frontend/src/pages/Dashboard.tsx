@@ -69,20 +69,20 @@ function StatCard({ label, value, valueColor, icon: Icon, badge }: {
   icon: (p: { className?: string }) => ReactElement; badge: string;
 }) {
   return (
-    <div className="relative rounded-3xl border overflow-hidden
+    <div className="relative rounded-2xl border overflow-hidden
       border-slate-200 bg-white shadow-sm
       dark:border-blue-400/[0.1] dark:bg-white/[0.045] dark:backdrop-blur-2xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
       {/* glass specular highlight, dark mode only */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px hidden dark:block bg-gradient-to-r from-transparent via-white/40 to-transparent" />
       <div className="pointer-events-none absolute inset-0 hidden dark:block bg-gradient-to-br from-white/[0.05] to-transparent" />
-      <div className="relative z-10 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <span className={`w-9 h-9 rounded-xl border flex items-center justify-center ${badge}`}>
-            <Icon className="w-4 h-4" />
+      <div className="relative z-10 p-4">
+        <div className="flex items-center justify-between mb-2.5">
+          <span className={`w-7 h-7 rounded-lg border flex items-center justify-center ${badge}`}>
+            <Icon className="w-3.5 h-3.5" />
           </span>
         </div>
-        <p className="text-xs font-medium tracking-wider uppercase text-slate-500 dark:text-slate-400 mb-1.5">{label}</p>
-        <p className={`text-3xl font-semibold tracking-tight ${valueColor}`}>{value}</p>
+        <p className="text-[11px] font-medium tracking-wider uppercase text-slate-500 dark:text-slate-400 mb-1">{label}</p>
+        <p className={`text-2xl font-semibold tracking-tight ${valueColor}`}>{value}</p>
       </div>
     </div>
   );
@@ -94,19 +94,19 @@ function InsightCard({ label, value, sub, icon: Icon, badge, chart }: {
   chart?: ReactElement;
 }) {
   return (
-    <div className="relative rounded-2xl border p-4
+    <div className="relative rounded-xl border p-3
       border-slate-200 bg-slate-50
       dark:border-blue-400/[0.1] dark:bg-white/[0.03] dark:backdrop-blur-xl">
-      <div className="flex items-start justify-between mb-1.5">
-        <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-500">{label}</p>
+      <div className="flex items-start justify-between mb-1">
+        <p className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-500">{label}</p>
         {Icon && badge && (
-          <span className={`w-7 h-7 rounded-lg border flex items-center justify-center shrink-0 ${badge}`}>
-            <Icon className="w-3.5 h-3.5" />
+          <span className={`w-6 h-6 rounded-md border flex items-center justify-center shrink-0 ${badge}`}>
+            <Icon className="w-3 h-3" />
           </span>
         )}
       </div>
-      <p className="text-xl font-semibold text-slate-900 dark:text-slate-100">{value}</p>
-      {sub && <p className="text-xs mt-1 text-slate-500 dark:text-slate-500">{sub}</p>}
+      <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{value}</p>
+      {sub && <p className="text-[11px] mt-0.5 text-slate-500 dark:text-slate-500">{sub}</p>}
       {chart}
     </div>
   );
@@ -122,7 +122,7 @@ function MovementsSparkline({ movements }: { movements: DashboardSummary['recent
     .map((m, i) => ({ i, qty: m.quantity }));
 
   return (
-    <div className="h-9 -mx-1 mt-1">
+    <div className="h-7 -mx-1 mt-0.5">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={points} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
           <defs>
@@ -141,17 +141,17 @@ function MovementsSparkline({ movements }: { movements: DashboardSummary['recent
 // Signature element: an Ocean-gradient progress ring for average utilization,
 // standing in for the plain "—" placeholder used elsewhere.
 function UtilizationRing({ percent }: { percent: number | null }) {
-  const r = 15;
+  const r = 12;
   const c = 2 * Math.PI * r;
   const pct = percent ?? 0;
   const offset = c - (pct / 100) * c;
   return (
-    <div className="relative w-9 h-9 shrink-0">
-      <svg viewBox="0 0 36 36" className="w-9 h-9 -rotate-90">
-        <circle cx="18" cy="18" r={r} fill="none" stroke="currentColor" strokeWidth="3.5" className="text-slate-200 dark:text-white/[0.08]" />
+    <div className="relative w-7 h-7 shrink-0">
+      <svg viewBox="0 0 30 30" className="w-7 h-7 -rotate-90">
+        <circle cx="15" cy="15" r={r} fill="none" stroke="currentColor" strokeWidth="3" className="text-slate-200 dark:text-white/[0.08]" />
         {percent !== null && (
           <circle
-            cx="18" cy="18" r={r} fill="none" strokeWidth="3.5" strokeLinecap="round"
+            cx="15" cy="15" r={r} fill="none" strokeWidth="3" strokeLinecap="round"
             stroke="url(#oceanRingGrad)" strokeDasharray={c} strokeDashoffset={offset}
           />
         )}
@@ -183,9 +183,9 @@ function QuickActionCard({ action }: { action: QuickAction }) {
         border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-blue-300
         dark:border-blue-400/[0.1] dark:bg-white/[0.03] dark:hover:bg-white/[0.06] dark:hover:border-blue-400/25 dark:backdrop-blur-xl"
     >
-      <span className="w-9 h-9 rounded-xl border flex items-center justify-center mb-3
+      <span className="w-8 h-8 rounded-lg border flex items-center justify-center mb-2.5
         bg-blue-500/15 text-blue-300 border-blue-400/25">
-        <Icon className="w-4 h-4" />
+        <Icon className="w-3.5 h-3.5" />
       </span>
       <p className="text-sm font-medium text-slate-900 group-hover:text-slate-950 dark:text-slate-100 dark:group-hover:text-white">{action.title}</p>
       <p className="text-xs mt-1 leading-relaxed text-slate-500 dark:text-slate-500">{action.description}</p>
@@ -335,7 +335,7 @@ export default function Dashboard() {
 
         {data && (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {cards.map((c, i) => (
                 <StatCard key={i} label={c.label} value={c.value} {...CARDS[i]} />
               ))}
@@ -343,7 +343,7 @@ export default function Dashboard() {
 
             {/* Insights — extra at-a-glance detail derived from the summary data */}
             {insights && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
                 <InsightCard
                   label="Avg. Utilization"
                   value={data.warehouse_utilization.length ? `${insights.avgUtilization}%` : '—'}
