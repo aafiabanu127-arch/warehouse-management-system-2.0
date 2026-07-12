@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import PublicNavbar from "../components/PublicNavbar";
+import logoIcon from "../assets/logo-icon.png";
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Job { title: string; dept: string; type: string; reqs: string[]; badge: string; }
 interface Metric { label: string; end: number; suffix: string; icon: string; sub: string; }
@@ -728,11 +729,18 @@ export default function Landing() {
           <div style={{ maxWidth: 1140, margin: "0 auto", padding: "64px 24px 36px" }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 44, marginBottom: 52 }}>
               <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-                  <div style={{ width: 38, height: 38, background: "linear-gradient(135deg,#00d4ff,#0ea5e9)", borderRadius: 11, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, boxShadow: "0 4px 14px rgba(0,212,255,0.25)" }}>📦</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 18 }}>
+                  <div style={{
+                    width: 42, height: 42, borderRadius: 12, flexShrink: 0, padding: 5.5,
+                    background: "linear-gradient(160deg,#ffffff,#e8eef4)",
+                    boxShadow: "0 4px 16px rgba(0,212,255,0.25), 0 0 0 1px rgba(0,212,255,0.22), inset 0 1px 0 rgba(255,255,255,0.9)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <img src={logoIcon} alt="WSOS logo" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+                  </div>
                   <div>
                     <div style={{ fontWeight: 900, fontSize: 15, background: "linear-gradient(135deg,#00d4ff,#fff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>WSOS</div>
-                    <div style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", letterSpacing: 2, textTransform: "uppercase" }}>Warehouse OS</div>
+                    <div style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>Warehouse OS</div>
                   </div>
                 </div>
                 <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 13.5, lineHeight: 1.75, maxWidth: 220 }}>Turning storage complexity into operational simplicity — one warehouse at a time.</p>

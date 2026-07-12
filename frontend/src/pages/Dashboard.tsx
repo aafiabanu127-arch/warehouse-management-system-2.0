@@ -14,7 +14,6 @@ import {
   WarehouseIcon, PackageIcon, BoxIcon, AlertTriangleIcon, ArrowDownIcon, ArrowUpIcon,
   ShuffleIcon, AnalyticsIcon, CheckShieldIcon, ReportIcon, SparkleIcon,
 } from '../components/icons';
-import ThemeToggle from '../components/ThemeToggle';
 
 // Ocean palette — each stat keeps one semantic tone drawn from the
 // Ocean (#0F1F40) reference swatch instead of a rainbow of neon gradients.
@@ -280,15 +279,12 @@ export default function Dashboard() {
           </div>
         )}
 
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">Dashboard</h1>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              Welcome, <span className="font-medium text-slate-700 dark:text-slate-200">{user?.username}</span>{' '}
-              <span className="text-slate-400 dark:text-slate-500">({user?.role})</span>
-            </p>
-          </div>
-          <ThemeToggle />
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">Dashboard</h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            Welcome, <span className="font-medium text-slate-700 dark:text-slate-200">{user?.username}</span>{' '}
+            <span className="text-slate-400 dark:text-slate-500">({user?.role})</span>
+          </p>
         </div>
 
         {isLoading && <p className="text-sm text-slate-500 dark:text-slate-400">Loading dashboard data...</p>}

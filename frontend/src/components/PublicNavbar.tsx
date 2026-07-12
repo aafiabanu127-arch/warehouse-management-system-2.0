@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import logoIcon from "../assets/logo-icon.png";
 
 // ─── Shared public-site navbar ─────────────────────────────────────────────
 // Used on the Landing page and every marketing sub-page (Services, About,
@@ -69,11 +70,18 @@ export default function PublicNavbar() {
       }}>
         <div style={{ maxWidth: 1140, margin: "0 auto", height: 68, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           {/* Logo */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={() => goTo("Home")}>
-            <div style={{ width: 38, height: 38, background: "linear-gradient(135deg,#00d4ff,#0ea5e9)", borderRadius: 11, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, boxShadow: "0 4px 16px rgba(0,212,255,0.3)" }}>📦</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={() => goTo("Home")}>
+            <div style={{
+              width: 46, height: 46, borderRadius: 13, flexShrink: 0, padding: 6,
+              background: "linear-gradient(160deg,#ffffff,#e8eef4)",
+              boxShadow: "0 4px 18px rgba(0,212,255,0.28), 0 0 0 1px rgba(0,212,255,0.25), inset 0 1px 0 rgba(255,255,255,0.9)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <img src={logoIcon} alt="WSOS logo" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+            </div>
             <div>
-              <div style={{ fontWeight: 900, fontSize: 15, background: "linear-gradient(135deg,#00d4ff 30%,#fff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: -0.3 }}>WSOS</div>
-              <div style={{ fontSize: 9, color: "rgba(255,255,255,0.25)", letterSpacing: 2, textTransform: "uppercase", lineHeight: 1, marginTop: -1 }}>Warehouse OS</div>
+              <div style={{ fontWeight: 900, fontSize: 16, background: "linear-gradient(135deg,#00d4ff 30%,#fff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: -0.3, lineHeight: 1.2 }}>WSOS</div>
+              <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 2, textTransform: "uppercase", lineHeight: 1, marginTop: 3, fontWeight: 600 }}>Warehouse OS</div>
             </div>
           </div>
           {/* Desktop nav */}
