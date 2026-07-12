@@ -8,11 +8,12 @@ import { getDashboardSummary } from '../api/dashboard';
 import type { DashboardSummary } from '../types/dashboard';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
-  AreaChart, Area,
+  AreaChart, Area, PieChart, Pie, Legend,
 } from 'recharts';
 import {
   WarehouseIcon, PackageIcon, BoxIcon, AlertTriangleIcon, ArrowDownIcon, ArrowUpIcon,
-  ShuffleIcon, AnalyticsIcon, CheckShieldIcon, ReportIcon, SparkleIcon,
+  ShuffleIcon, AnalyticsIcon, CheckShieldIcon, ReportIcon, SparkleIcon, DollarIcon,
+  ClockIcon, TagIcon, GridIcon, RackIcon, ShelfIcon,
 } from '../components/icons';
 
 // Ocean palette — each stat keeps one semantic tone drawn from the
@@ -21,8 +22,11 @@ const CARDS = [
   { valueColor: 'text-slate-900 dark:text-slate-100', icon: WarehouseIcon, badge: 'bg-blue-500/15 text-blue-300 border-blue-400/25' },
   { valueColor: 'text-slate-900 dark:text-slate-100', icon: PackageIcon,   badge: 'bg-blue-500/15 text-blue-300 border-blue-400/25' },
   { valueColor: 'text-slate-900 dark:text-slate-100', icon: BoxIcon,       badge: 'bg-cyan-500/15 text-cyan-300 border-cyan-400/25' },
+  { valueColor: 'text-emerald-600 dark:text-emerald-300', icon: DollarIcon, badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-400/25' },
   { valueColor: 'text-amber-600 dark:text-amber-300', icon: AlertTriangleIcon, badge: 'bg-amber-500/15 text-amber-300 border-amber-400/25' },
 ];
+
+const PIE_COLORS = ['#38bdf8', '#34d399', '#fbbf24', '#f87171', '#a78bfa', '#fb923c', '#22d3ee', '#f472b6'];
 
 function StatCard({ label, value, valueColor, icon: Icon, badge }: {
   label: string; value: string | number; valueColor: string;
@@ -68,6 +72,26 @@ function InsightCard({ label, value, sub, icon: Icon, badge, chart }: {
       <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{value}</p>
       {sub && <p className="text-[11px] mt-0.5 text-slate-500 dark:text-slate-500">{sub}</p>}
       {chart}
+    </div>
+  );
+}
+
+// Small stat pill used for warehouse structure counts (zones/racks/shelves/categories)
+function MiniStatPill({ label, value, icon: Icon }: {
+  label: string; value: number; icon: (p: { className?: string }) => ReactElement;
+}) {
+  return (
+    <div className="flex items-center gap-2.5 rounded-xl border px-3 py-2.5
+      border-slate-200 bg-slate-50
+      dark:border-blue-400/[0.1] dark:bg-white/[0.03]">
+      <span className="w-7 h-7 rounded-lg border flex items-center justify-center shrink-0
+        bg-blue-500/15 text-blue-300 border-blue-400/25">
+        <Icon className="w-3.5 h-3.5" />
+      </span>
+      <div className="min-w-0">
+        <p className="text-base font-semibold leading-tight text-slate-900 dark:text-slate-100">{value}</p>
+        <p className="text-[11px] text-slate-500 dark:text-slate-500 truncate">{label}</p>
+      </div>
     </div>
   );
 }
@@ -156,6 +180,36 @@ function QuickActionCard({ action }: { action: QuickAction }) {
   );
 }
 
+// Section wrapper shared by all the chart/table panels below the fold —
+// keeps the glass card chrome consistent without repeating it everywhere.
+function Section({ title, accent = 'bg-blue-500/70 dark:bg-blue-400/70', children, right }: {
+  title: string; accent?: string; children: ReactElement | ReactElement[] | false | null; right?: ReactElement;
+}) {
+  return (
+    <div className="relative rounded-3xl border overflow-hidden
+      border-slate-200 bg-white shadow-sm
+      dark:border-blue-400/[0.1] dark:bg-white/[0.035] dark:backdrop-blur-2xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px hidden dark:block bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+      <div className="relative z-10 p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className={`w-1 h-5 rounded-full ${accent}`} />
+            <h2 className="text-base font-medium text-slate-900 dark:text-slate-100">{title}</h2>
+          </div>
+          {right}
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function formatCurrency(value: number): string {
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(2)}M`;
+  if (value >= 1_000) return `$${(value / 1_000).toFixed(1)}k`;
+  return `$${value.toFixed(0)}`;
+}
+
 export default function Dashboard() {
   const { user } = useAuth();
   const perms = usePermissions();
@@ -185,6 +239,7 @@ export default function Dashboard() {
     { label: 'Total Warehouses',      value: data.total_warehouses },
     { label: 'Total Products',        value: data.total_products },
     { label: 'Total Inventory Units', value: data.total_inventory_quantity },
+    { label: 'Inventory Value',       value: formatCurrency(data.total_inventory_value ?? 0) },
     { label: `Low Stock (< ${data.low_stock_threshold_used})`, value: data.low_stock_count },
   ] : [];
 
@@ -208,6 +263,17 @@ export default function Dashboard() {
     const movementsToday = movements.filter(m => new Date(m.timestamp).toDateString() === today).length;
 
     return { avgUtilization, busiest, stockIn, stockOut, movementsToday };
+  }, [data]);
+
+  const categoryPieData = useMemo(() => {
+    if (!data) return [];
+    return data.category_breakdown.map((c, i) => ({
+      name: c.category,
+      value: c.total_quantity,
+      productCount: c.product_count,
+      totalValue: c.total_value,
+      fill: PIE_COLORS[i % PIE_COLORS.length],
+    }));
   }, [data]);
 
   const quickActions: QuickAction[] = [
@@ -292,7 +358,7 @@ export default function Dashboard() {
 
         {data && (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               {cards.map((c, i) => (
                 <StatCard key={i} label={c.label} value={c.value} {...CARDS[i]} />
               ))}
@@ -300,7 +366,7 @@ export default function Dashboard() {
 
             {/* Insights — extra at-a-glance detail derived from the summary data */}
             {insights && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
                 <InsightCard
                   label="Avg. Utilization"
                   value={data.warehouse_utilization.length ? `${insights.avgUtilization}%` : '—'}
@@ -327,70 +393,248 @@ export default function Dashboard() {
                   icon={ArrowUpIcon}
                   badge="bg-rose-500/15 text-rose-300 border-rose-400/25"
                 />
+                <InsightCard
+                  label="Pending Approvals"
+                  value={String(data.pending_approvals.total)}
+                  sub={`${data.pending_approvals.transfers} transfers · ${data.pending_approvals.adjustments} adjustments`}
+                  icon={ClockIcon}
+                  badge="bg-violet-500/15 text-violet-300 border-violet-400/25"
+                />
               </div>
             )}
 
             {/* Quick actions — surfaces AI Assistant and other frequently used tools */}
             {quickActions.length > 0 && (
-              <div className="relative rounded-3xl border overflow-hidden
-                border-slate-200 bg-white shadow-sm
-                dark:border-blue-400/[0.1] dark:bg-white/[0.03] dark:backdrop-blur-2xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-px hidden dark:block bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-                <div className="relative z-10 p-5">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="w-1 h-5 rounded-full bg-blue-500/70 dark:bg-blue-400/70" />
-                    <h2 className="text-base font-medium text-slate-900 dark:text-slate-100">Quick Actions</h2>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {quickActions.map(a => (
-                      <QuickActionCard key={a.to} action={a} />
-                    ))}
-                  </div>
+              <Section title="Quick Actions">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {quickActions.map(a => (
+                    <QuickActionCard key={a.to} action={a} />
+                  ))}
                 </div>
-              </div>
+              </Section>
             )}
 
-            <div className="relative rounded-3xl border overflow-hidden
-              border-slate-200 bg-white shadow-sm
-              dark:border-blue-400/[0.1] dark:bg-white/[0.035] dark:backdrop-blur-2xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-px hidden dark:block bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-              <div className="relative z-10 p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-1 h-5 rounded-full bg-blue-500/70 dark:bg-blue-400/70" />
-                  <h2 className="text-base font-medium text-slate-900 dark:text-slate-100">Warehouse Utilization (%)</h2>
+            {/* Warehouse structure & capacity — zones/racks/shelves/categories plus overall space usage */}
+            <Section title="Warehouse Structure &amp; Capacity">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mb-5">
+                <MiniStatPill label="Zones" value={data.structure_counts.zones} icon={GridIcon} />
+                <MiniStatPill label="Racks" value={data.structure_counts.racks} icon={RackIcon} />
+                <MiniStatPill label="Shelves" value={data.structure_counts.shelves} icon={ShelfIcon} />
+                <MiniStatPill label="Categories" value={data.structure_counts.categories} icon={TagIcon} />
+              </div>
+              <div>
+                <div className="flex items-center justify-between text-xs mb-1.5 text-slate-500 dark:text-slate-400">
+                  <span>Used {data.capacity_overview.used_capacity.toLocaleString()} / {data.capacity_overview.total_capacity.toLocaleString()} capacity units</span>
+                  <span className="font-medium text-slate-700 dark:text-slate-200">{data.capacity_overview.utilization_percent}%</span>
                 </div>
-                {data.warehouse_utilization.length === 0 ? (
-                  <p className="text-sm text-slate-500 dark:text-slate-400">No warehouse data yet.</p>
-                ) : (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={data.warehouse_utilization}>
-                      <defs>
-                        <linearGradient id="oceanBarGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#38bdf8" stopOpacity={0.9} />
-                          <stop offset="100%" stopColor="#0f1f40" stopOpacity={0.45} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
-                      <XAxis dataKey="name" stroke={chartColors.axis} tick={{ fontSize: 11 }} />
-                      <YAxis stroke={chartColors.axis} domain={[0, 100]} tick={{ fontSize: 11 }} />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: chartColors.tooltipBg,
-                          border: `1px solid ${chartColors.tooltipBorder}`,
-                          borderRadius: '12px',
-                          color: chartColors.tooltipText,
-                        }}
-                      />
-                      <Bar dataKey="utilization_percent" fill="url(#oceanBarGrad)" radius={[6, 6, 0, 0]}>
-                        {data.warehouse_utilization.map((_, i) => (
-                          <Cell key={i} fill="url(#oceanBarGrad)" />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                )}
+                <div className="h-3 rounded-full overflow-hidden bg-slate-100 dark:bg-white/[0.06]">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-sky-400 to-blue-600"
+                    style={{ width: `${Math.min(100, data.capacity_overview.utilization_percent)}%` }}
+                  />
+                </div>
+                <p className="text-[11px] mt-1.5 text-slate-500 dark:text-slate-500">
+                  {data.capacity_overview.available_capacity.toLocaleString()} capacity units still available across all warehouses.
+                </p>
+              </div>
+            </Section>
+
+            {/* Category breakdown + Top products, side by side */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+              <div className="lg:col-span-2">
+                <Section title="Inventory by Category">
+                  {categoryPieData.length === 0 ? (
+                    <p className="text-sm text-slate-500 dark:text-slate-400">No category data yet.</p>
+                  ) : (
+                    <ResponsiveContainer width="100%" height={260}>
+                      <PieChart>
+                        <Pie
+                          data={categoryPieData}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius={55}
+                          outerRadius={90}
+                          paddingAngle={2}
+                        >
+                          {categoryPieData.map((entry, i) => (
+                            <Cell key={i} fill={entry.fill} stroke="none" />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: chartColors.tooltipBg,
+                            border: `1px solid ${chartColors.tooltipBorder}`,
+                            borderRadius: '12px',
+                            color: chartColors.tooltipText,
+                          }}
+                          formatter={((value: number, _name: unknown, props: { payload?: { totalValue?: number; name?: string } }) => [
+                            `${value.toLocaleString()} units · ${formatCurrency(props?.payload?.totalValue ?? 0)}`,
+                            props?.payload?.name,
+                          ]) as any}
+                        />
+                        <Legend
+                          wrapperStyle={{ fontSize: 11, color: chartColors.axis }}
+                          formatter={(value: string) => <span style={{ color: chartColors.axis }}>{value}</span>}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  )}
+                </Section>
+              </div>
+
+              <div className="lg:col-span-3">
+                <Section title="Top Products by Quantity">
+                  {data.top_products.length === 0 ? (
+                    <p className="text-sm text-slate-500 dark:text-slate-400">No product data yet.</p>
+                  ) : (
+                    <ResponsiveContainer width="100%" height={260}>
+                      <BarChart data={data.top_products} layout="vertical" margin={{ left: 12, right: 16 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} horizontal={false} />
+                        <XAxis type="number" stroke={chartColors.axis} tick={{ fontSize: 11 }} />
+                        <YAxis
+                          type="category"
+                          dataKey="name"
+                          stroke={chartColors.axis}
+                          tick={{ fontSize: 11 }}
+                          width={110}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: chartColors.tooltipBg,
+                            border: `1px solid ${chartColors.tooltipBorder}`,
+                            borderRadius: '12px',
+                            color: chartColors.tooltipText,
+                          }}
+                        />
+                        <Bar dataKey="quantity" radius={[0, 6, 6, 0]}>
+                          {data.top_products.map((_, i) => (
+                            <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
+                </Section>
               </div>
             </div>
+
+            {/* 14-day movement trend */}
+            <Section title="14-Day Movement Trend">
+              {data.movement_trend.every(d => d.in === 0 && d.out === 0 && d.transfer === 0) ? (
+                <p className="text-sm text-slate-500 dark:text-slate-400">No movement activity in the last 14 days.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={260}>
+                  <AreaChart data={data.movement_trend}>
+                    <defs>
+                      <linearGradient id="inGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#34d399" stopOpacity={0.5} />
+                        <stop offset="100%" stopColor="#34d399" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="outGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#f87171" stopOpacity={0.5} />
+                        <stop offset="100%" stopColor="#f87171" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="transferGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#a78bfa" stopOpacity={0.4} />
+                        <stop offset="100%" stopColor="#a78bfa" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+                    <XAxis
+                      dataKey="date"
+                      stroke={chartColors.axis}
+                      tick={{ fontSize: 10 }}
+                      tickFormatter={(d: string) => new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    />
+                    <YAxis stroke={chartColors.axis} tick={{ fontSize: 11 }} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: chartColors.tooltipBg,
+                        border: `1px solid ${chartColors.tooltipBorder}`,
+                        borderRadius: '12px',
+                        color: chartColors.tooltipText,
+                      }}
+                      labelFormatter={((d: string) => new Date(d).toLocaleDateString()) as any}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 11, color: chartColors.axis }} />
+                    <Area type="monotone" dataKey="in" name="Stock In" stroke="#34d399" strokeWidth={2} fill="url(#inGrad)" />
+                    <Area type="monotone" dataKey="out" name="Stock Out" stroke="#f87171" strokeWidth={2} fill="url(#outGrad)" />
+                    <Area type="monotone" dataKey="transfer" name="Transfer" stroke="#a78bfa" strokeWidth={2} fill="url(#transferGrad)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
+            </Section>
+
+            <Section title="Warehouse Utilization (%)">
+              {data.warehouse_utilization.length === 0 ? (
+                <p className="text-sm text-slate-500 dark:text-slate-400">No warehouse data yet.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={data.warehouse_utilization}>
+                    <defs>
+                      <linearGradient id="oceanBarGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#38bdf8" stopOpacity={0.9} />
+                        <stop offset="100%" stopColor="#0f1f40" stopOpacity={0.45} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+                    <XAxis dataKey="name" stroke={chartColors.axis} tick={{ fontSize: 11 }} />
+                    <YAxis stroke={chartColors.axis} domain={[0, 100]} tick={{ fontSize: 11 }} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: chartColors.tooltipBg,
+                        border: `1px solid ${chartColors.tooltipBorder}`,
+                        borderRadius: '12px',
+                        color: chartColors.tooltipText,
+                      }}
+                    />
+                    <Bar dataKey="utilization_percent" fill="url(#oceanBarGrad)" radius={[6, 6, 0, 0]}>
+                      {data.warehouse_utilization.map((_, i) => (
+                        <Cell key={i} fill="url(#oceanBarGrad)" />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </Section>
+
+            {/* Low stock items — actionable detail behind the summary count above */}
+            <Section title="Low Stock Items" accent="bg-amber-500/70 dark:bg-amber-400/70">
+              {data.low_stock_items.length === 0 ? (
+                <p className="text-sm text-slate-500 dark:text-slate-400">Nothing below the low-stock threshold right now.</p>
+              ) : (
+                <div className="-mx-5 -mb-5 overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-500">
+                        <th className="text-left px-5 py-3 font-medium">Product</th>
+                        <th className="text-left px-5 py-3 font-medium">SKU</th>
+                        <th className="text-left px-5 py-3 font-medium">Shelf</th>
+                        <th className="text-left px-5 py-3 font-medium">Quantity</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.low_stock_items.map((item, i) => (
+                        <tr key={i} className="border-t transition
+                          border-slate-100 hover:bg-slate-50
+                          dark:border-white/5 dark:hover:bg-white/[0.03]">
+                          <td className="px-5 py-3 text-slate-900 dark:text-slate-100">{item.name}</td>
+                          <td className="px-5 py-3 text-slate-500 dark:text-slate-400">{item.sku}</td>
+                          <td className="px-5 py-3 text-slate-500 dark:text-slate-400">{item.shelf_code}</td>
+                          <td className="px-5 py-3">
+                            <span className="px-2 py-0.5 rounded-full text-xs font-medium border
+                              bg-amber-50 text-amber-700 border-amber-200
+                              dark:bg-amber-400/10 dark:text-amber-300 dark:border-amber-400/20">
+                              {item.quantity}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </Section>
 
             <div className="relative rounded-3xl border overflow-hidden
               border-slate-200 bg-white shadow-sm

@@ -246,7 +246,7 @@ export default function Layout() {
             </p>
           </div>
           <button
-            onClick={logout}
+            onClick={() => { logout(); navigate('/'); }}
             className="w-full flex items-center justify-center gap-1.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 text-rose-600 dark:text-rose-300 text-sm font-medium py-1.5 rounded-xl transition"
           >
             <LogOutIcon className="w-3.5 h-3.5" />
@@ -398,7 +398,7 @@ export default function Layout() {
                     <div className="px-3 py-2 rounded text-sm text-slate-500 dark:text-slate-400">Phone: {user?.phone || 'Not set'}</div>
                   </div>
                   <div className="px-2 py-2 border-t border-slate-200 dark:border-blue-400/[0.08]">
-                    <button onClick={() => { logout(); setShowProfile(false); }}
+                    <button onClick={() => { logout(); setShowProfile(false); navigate('/'); }}
                       className="w-full text-left px-3 py-2 text-sm font-medium text-rose-600 dark:text-rose-300 hover:bg-rose-500/10 rounded-lg transition">
                       Log Out
                     </button>

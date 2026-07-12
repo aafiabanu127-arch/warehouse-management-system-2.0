@@ -194,6 +194,24 @@ export function LogOutIcon({ className = base }: IconProps) {
   );
 }
 
+export function DollarIcon({ className = base }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 2.5v15" />
+      <path d="M13.5 6c0-1.4-1.6-2.3-3.5-2.3S6.5 4.6 6.5 6c0 1.4 1.6 2 3.5 2.5s3.5 1.1 3.5 2.5c0 1.4-1.6 2.3-3.5 2.3s-3.5-.9-3.5-2.3" />
+    </svg>
+  );
+}
+
+export function ClockIcon({ className = base }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="10" cy="10" r="7" />
+      <path d="M10 6v4l3 2" />
+    </svg>
+  );
+}
+
 export function MenuIcon({ className = base }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

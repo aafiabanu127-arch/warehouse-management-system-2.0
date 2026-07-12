@@ -1,5 +1,7 @@
 from django.utils import timezone
-from django.db.models import Sum, Count, Avg  # Avg kept for ReportViewSet SPACE report
+from django.db.models import Sum, Count, Avg, F, DecimalField, ExpressionWrapper  # Avg kept for ReportViewSet SPACE report
+from django.db.models.functions import TruncDate
+from datetime import timedelta
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -7,8 +9,11 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Report
 from .serializers import ReportSerializer
 from .exports import export_report_csv, export_report_excel, export_report_pdf
-from inventory.models import Inventory, StockMovement, SpaceAllocation
-from warehouses.models import Warehouse
+from inventory.models import (
+    Inventory, StockMovement, SpaceAllocation, Category, Product,
+    StockTransferRequest, InventoryAdjustmentRequest,
+)
+from warehouses.models import Warehouse, Zone, Rack, Shelf
 
 
 class ReportViewSet(viewsets.ModelViewSet):
@@ -116,14 +121,141 @@ class DashboardView(viewsets.ViewSet):
                 'utilization_percent': utilization_percent,
             })
 
+        # ---- Inventory value (quantity * unit_price) ----
+        value_expr = ExpressionWrapper(
+            F('quantity') * F('product__unit_price'),
+            output_field=DecimalField(max_digits=14, decimal_places=2),
+        )
+        total_inventory_value = Inventory.objects.aggregate(
+            total=Sum(value_expr))['total'] or 0
+
+        # ---- Category breakdown ----
+        category_breakdown = list(
+            Inventory.objects.values('product__category__name')
+            .annotate(
+                total_quantity=Sum('quantity'),
+                total_value=Sum(value_expr),
+                product_count=Count('product', distinct=True),
+            )
+            .order_by('-total_quantity')
+        )
+        category_breakdown = [{
+            'category':       c['product__category__name'] or 'Uncategorized',
+            'total_quantity': c['total_quantity'] or 0,
+            'total_value':    float(c['total_value'] or 0),
+            'product_count':  c['product_count'],
+        } for c in category_breakdown]
+
+        # ---- 14-day movement trend (daily IN vs OUT) ----
+        since_14 = timezone.now() - timedelta(days=14)
+        daily = (
+            StockMovement.objects.filter(timestamp__gte=since_14)
+            .annotate(day=TruncDate('timestamp'))
+            .values('day', 'movement_type')
+            .annotate(total=Sum('quantity'))
+            .order_by('day')
+        )
+        trend_map: dict = {}
+        for row in daily:
+            day_key = row['day'].isoformat()
+            entry = trend_map.setdefault(day_key, {'date': day_key, 'in': 0, 'out': 0, 'transfer': 0})
+            mtype = row['movement_type']
+            if mtype == 'IN':
+                entry['in'] += row['total']
+            elif mtype == 'OUT':
+                entry['out'] += row['total']
+            else:
+                entry['transfer'] += row['total']
+        # Fill in the full 14-day range so the chart has no gaps
+        movement_trend = []
+        for i in range(13, -1, -1):
+            day = (timezone.now() - timedelta(days=i)).date().isoformat()
+            movement_trend.append(trend_map.get(day, {'date': day, 'in': 0, 'out': 0, 'transfer': 0}))
+
+        # ---- Top products by quantity on hand ----
+        top_products = list(
+            Inventory.objects.values('product__name', 'product__sku')
+            .annotate(total_quantity=Sum('quantity'))
+            .order_by('-total_quantity')[:6]
+        )
+        top_products = [{
+            'name':     p['product__name'],
+            'sku':      p['product__sku'],
+            'quantity': p['total_quantity'],
+        } for p in top_products]
+
+        # ---- Detailed low-stock items (not just a count) ----
+        low_stock_items = list(
+            Inventory.objects.filter(quantity__lt=LOW_STOCK_THRESHOLD)
+            .select_related('product', 'shelf')
+            .order_by('quantity')
+            .values('product__name', 'product__sku', 'quantity', 'shelf__shelf_code')[:8]
+        )
+        low_stock_items = [{
+            'name':        i['product__name'],
+            'sku':         i['product__sku'],
+            'quantity':    i['quantity'],
+            'shelf_code':  i['shelf__shelf_code'],
+        } for i in low_stock_items]
+
+        # ---- Pending approvals (transfers + adjustments) ----
+        pending_transfers   = StockTransferRequest.objects.filter(status='PENDING').count()
+        pending_adjustments = InventoryAdjustmentRequest.objects.filter(status='PENDING').count()
+
+        # ---- Warehouse structure counts ----
+        structure_counts = {
+            'zones':  Zone.objects.count(),
+            'racks':  Rack.objects.count(),
+            'shelves': Shelf.objects.count(),
+            'categories': Category.objects.count(),
+        }
+
+        # ---- Capacity overview across all warehouses ----
+        capacity_agg = Warehouse.objects.aggregate(
+            total=Sum('total_capacity'), available=Sum('available_capacity'))
+        total_cap = capacity_agg['total'] or 0
+        avail_cap = capacity_agg['available'] or 0
+        used_cap  = total_cap - avail_cap
+        capacity_overview = {
+            'total_capacity':     round(total_cap, 1),
+            'available_capacity': round(avail_cap, 1),
+            'used_capacity':      round(used_cap, 1),
+            'utilization_percent': round((used_cap / total_cap) * 100, 1) if total_cap else 0,
+        }
+
+        # ---- 30-day movement totals (overall throughput) ----
+        since_30 = timezone.now() - timedelta(days=30)
+        totals_30 = (
+            StockMovement.objects.filter(timestamp__gte=since_30)
+            .values('movement_type').annotate(total=Sum('quantity'))
+        )
+        movement_totals_30d = {'in': 0, 'out': 0, 'transfer': 0}
+        for row in totals_30:
+            key = row['movement_type'].lower()
+            if key in movement_totals_30d:
+                movement_totals_30d[key] = row['total'] or 0
+
         return Response({
             'total_warehouses':         total_warehouses,
             'total_products':           total_products,
             'total_inventory_quantity': total_inventory,
+            'total_inventory_value':    float(total_inventory_value),
             'low_stock_count':          low_stock,
             'low_stock_threshold_used': LOW_STOCK_THRESHOLD,
             'warehouse_utilization':    warehouse_utilization,
             'recent_movements':         list(recent_movements),
+            'category_breakdown':       category_breakdown,
+            'movement_trend':           movement_trend,
+            'top_products':             top_products,
+            'low_stock_items':          low_stock_items,
+            'pending_approvals': {
+                'transfers':    pending_transfers,
+                'adjustments':  pending_adjustments,
+                'total':        pending_transfers + pending_adjustments,
+            },
+            'structure_counts':         structure_counts,
+            'capacity_overview':        capacity_overview,
+            'movement_totals_30d':      movement_totals_30d,
         })
     
 
