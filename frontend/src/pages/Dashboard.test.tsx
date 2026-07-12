@@ -2,6 +2,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Dashboard from './Dashboard';
+import { ThemeProvider } from '../context/ThemeContext';
 
 vi.mock('../api/dashboard', () => ({
   getDashboardSummary: vi.fn().mockResolvedValue({
@@ -34,9 +35,11 @@ describe('Dashboard page', () => {
 
   it('renders dashboard heading', async () => {
     render(
-      <MemoryRouter>
-        <Dashboard />
-      </MemoryRouter>
+      <ThemeProvider>
+        <MemoryRouter>
+          <Dashboard />
+        </MemoryRouter>
+      </ThemeProvider>
     );
     await waitFor(() => {
       expect(screen.getByText(/dashboard/i)).toBeInTheDocument();
@@ -45,9 +48,11 @@ describe('Dashboard page', () => {
 
   it('displays KPI data from API', async () => {
     render(
-      <MemoryRouter>
-        <Dashboard />
-      </MemoryRouter>
+      <ThemeProvider>
+        <MemoryRouter>
+          <Dashboard />
+        </MemoryRouter>
+      </ThemeProvider>
     );
     await waitFor(() => {
       expect(screen.getByText('42')).toBeInTheDocument();

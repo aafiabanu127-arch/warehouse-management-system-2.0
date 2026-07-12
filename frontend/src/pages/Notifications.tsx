@@ -82,7 +82,7 @@ export default function Notifications() {
       {loading && <p className="text-gray-500">Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
       {!loading && notifications.length === 0 && (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20 text-gray-500 dark:text-gray-400">
           <p className="text-4xl mb-3">🔔</p>
           <p className="text-lg">No notifications yet</p>
         </div>
@@ -111,7 +111,7 @@ export default function Notifications() {
               </div>
               <p className="font-medium text-gray-800">{n.title}</p>
               <p className="text-sm text-gray-600 mt-0.5">{n.message}</p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {new Date(n.created_at).toLocaleString()}
               </p>
             </div>

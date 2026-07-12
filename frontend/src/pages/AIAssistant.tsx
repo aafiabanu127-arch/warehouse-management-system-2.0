@@ -14,7 +14,7 @@ const SUGGESTIONS = [
   'Summarize my notifications',
 ];
 
-const glass = 'bg-white/5 backdrop-blur-md border border-white/10';
+const glass = 'bg-white border border-slate-200 dark:bg-white/5 dark:backdrop-blur-md dark:border-white/10';
 
 export default function AIAssistant() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -131,10 +131,10 @@ export default function AIAssistant() {
     <div className="flex h-[calc(100vh-4rem)] -m-4 md:-m-8 gap-4 p-4">
       {/* Conversation sidebar */}
       <div className={`w-64 rounded-2xl flex flex-col shrink-0 overflow-hidden ${glass}`}>
-        <div className="p-3 border-b border-white/10">
+        <div className="p-3 border-b border-slate-200 dark:border-white/10">
           <button
             onClick={startNewChat}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white text-sm font-medium py-2 rounded-xl transition shadow-lg shadow-purple-500/20"
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-slate-900 dark:text-white text-sm font-medium py-2 rounded-xl transition shadow-lg shadow-purple-500/20"
           >
             + New chat
           </button>
@@ -146,8 +146,8 @@ export default function AIAssistant() {
               onClick={() => openConversation(c.id)}
               className={`group flex items-center justify-between gap-2 px-3 py-2 rounded-xl cursor-pointer text-sm truncate transition ${
                 activeId === c.id
-                  ? 'bg-gradient-to-r from-purple-600/40 to-cyan-600/30 text-white border border-white/20'
-                  : 'text-slate-400 hover:bg-white/10 hover:text-white'
+                  ? 'bg-gradient-to-r from-purple-600/40 to-cyan-600/30 text-slate-900 dark:text-white border border-blue-300 dark:border-white/20'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-900/5 dark:hover:bg-white/10 hover:text-slate-900 hover:dark:text-white'
               }`}
             >
               <span className="truncate">{c.title}</span>
@@ -168,11 +168,10 @@ export default function AIAssistant() {
 
       {/* Chat area */}
       <div className={`flex-1 flex flex-col rounded-2xl overflow-hidden ${glass}`}>
-        <div className="px-6 py-4 border-b border-white/10 flex items-center gap-3">
-          <span className="text-2xl">🤖</span>
+        <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10 flex items-center gap-3">
           <div>
-            <h1 className="font-semibold text-white">AI Assistant</h1>
-            <p className="text-xs text-slate-400">Ask about stock, warehouses, or ask it to record a movement</p>
+            <h1 className="font-semibold text-slate-900 dark:text-white">WMS AI</h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Ask about stock, warehouses, or ask it to record a movement</p>
           </div>
         </div>
 
@@ -182,7 +181,7 @@ export default function AIAssistant() {
           {!loadingConvo && messages.length === 0 && (
             <div className="h-full flex flex-col items-center justify-center text-center gap-4">
               <span className="text-4xl">👋</span>
-              <p className="text-slate-400 max-w-sm">
+              <p className="text-slate-500 dark:text-slate-400 max-w-sm">
                 Ask me anything about your inventory, warehouses, stock movements, or reports.
               </p>
               <div className="flex flex-wrap justify-center gap-2 max-w-md">
@@ -190,7 +189,7 @@ export default function AIAssistant() {
                   <button
                     key={s}
                     onClick={() => send(s)}
-                    className="text-xs px-3 py-1.5 rounded-full border border-white/10 text-slate-300 hover:bg-white/10 hover:text-white transition"
+                    className="text-xs px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-900/5 dark:hover:bg-white/10 hover:text-slate-900 hover:dark:text-white transition"
                   >
                     {s}
                   </button>
@@ -204,8 +203,8 @@ export default function AIAssistant() {
               <div
                 className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap ${
                   m.role === 'user'
-                    ? 'bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-br-sm shadow-lg shadow-purple-500/10'
-                    : 'bg-black/40 border border-cyan-900/30 text-slate-100 rounded-bl-sm'
+                    ? 'bg-gradient-to-r from-purple-600 to-cyan-600 text-slate-900 dark:text-white rounded-br-sm shadow-lg shadow-purple-500/10'
+                    : 'bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-cyan-900/30 text-slate-800 dark:text-slate-100 rounded-bl-sm'
                 }`}
               >
                 {m.content}
@@ -214,7 +213,7 @@ export default function AIAssistant() {
                     {m.tools_used.map((t, i) => (
                       <span
                         key={i}
-                        className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-cyan-300 border border-cyan-500/20"
+                        className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-500/20"
                       >
                         🔧 {t}
                       </span>
@@ -227,7 +226,7 @@ export default function AIAssistant() {
 
           {sending && (
             <div className="flex justify-start">
-              <div className="bg-black/40 border border-cyan-900/30 rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm text-slate-400">
+              <div className="bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-cyan-900/30 rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm text-slate-500 dark:text-slate-400">
                 Thinking…
               </div>
             </div>
@@ -241,7 +240,7 @@ export default function AIAssistant() {
           </div>
         )}
 
-        <div className="p-4 border-t border-white/10">
+        <div className="p-4 border-t border-slate-200 dark:border-white/10">
           <div className="flex items-end gap-2 max-w-3xl mx-auto">
             <textarea
               value={input}
@@ -249,12 +248,12 @@ export default function AIAssistant() {
               onKeyDown={handleKeyDown}
               placeholder="Ask the assistant… (Enter to send, Shift+Enter for new line)"
               rows={1}
-              className="flex-1 resize-none rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50"
+              className="flex-1 resize-none rounded-xl bg-slate-900/[0.03] dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50"
             />
             <button
               onClick={() => send()}
               disabled={sending || !input.trim()}
-              className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2.5 rounded-xl transition shadow-lg shadow-purple-500/20"
+              className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 disabled:opacity-40 disabled:cursor-not-allowed text-slate-900 dark:text-white text-sm font-medium px-4 py-2.5 rounded-xl transition shadow-lg shadow-purple-500/20"
             >
               Send
             </button>

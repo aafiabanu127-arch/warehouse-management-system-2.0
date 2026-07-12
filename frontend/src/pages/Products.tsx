@@ -94,14 +94,14 @@ export default function Products() {
         placeholder="Search by name, SKU, or description..."
         value={search}
         onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-        className="w-full max-w-md mb-4 px-3 py-2 rounded bg-slate-800 text-white border border-slate-600 focus:outline-none focus:border-emerald-400"
+        className="w-full max-w-md mb-4 px-3 py-2 rounded bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 focus:outline-none focus:border-emerald-400"
       />
 
       {error && <p className="text-red-400 mb-4">{error}</p>}
 
-      <div className="overflow-x-auto rounded-lg border border-slate-700">
+      <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
         <table className="w-full text-sm">
-          <thead className="bg-slate-800 text-slate-300">
+          <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
             <tr>
               <th className="text-left px-4 py-3">Name</th>
               <th className="text-left px-4 py-3">SKU</th>
@@ -114,12 +114,12 @@ export default function Products() {
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan={6} className="text-center py-6 text-slate-400">Loading...</td></tr>
+              <tr><td colSpan={6} className="text-center py-6 text-slate-500 dark:text-slate-400">Loading...</td></tr>
             ) : products.length === 0 ? (
-              <tr><td colSpan={6} className="text-center py-6 text-slate-400">No products found.</td></tr>
+              <tr><td colSpan={6} className="text-center py-6 text-slate-500 dark:text-slate-400">No products found.</td></tr>
             ) : (
               products.map((p) => (
-                <tr key={p.id} className="border-t border-slate-700 hover:bg-slate-800/50">
+                <tr key={p.id} className="border-t border-slate-200 dark:border-slate-700 hover:bg-slate-100/50 hover:dark:bg-slate-800/50">
                   <td className="px-4 py-3">{p.name}</td>
                   <td className="px-4 py-3">{p.sku}</td>
                   <td className="px-4 py-3">{categoryName(p.category)}</td>
@@ -141,11 +141,11 @@ export default function Products() {
         </table>
       </div>
 
-      <div className="flex justify-between items-center mt-4 text-sm text-slate-300">
+      <div className="flex justify-between items-center mt-4 text-sm text-slate-600 dark:text-slate-300">
         <span>Page {page} of {totalPages} ({count} total)</span>
         <div className="space-x-2">
-          <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40">Previous</button>
-          <button disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} className="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40">Next</button>
+          <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="px-3 py-1 rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 hover:dark:bg-slate-600 disabled:opacity-40">Previous</button>
+          <button disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} className="px-3 py-1 rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 hover:dark:bg-slate-600 disabled:opacity-40">Next</button>
         </div>
       </div>
 

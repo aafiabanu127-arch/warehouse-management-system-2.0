@@ -99,14 +99,14 @@ export default function Shelves() {
         placeholder="Search shelves..."
         value={search}
         onChange={e => { setSearch(e.target.value); setPage(1); }}
-        className="w-full max-w-md mb-4 px-3 py-2 rounded bg-slate-800 text-white border border-slate-600 focus:outline-none focus:border-emerald-400"
+        className="w-full max-w-md mb-4 px-3 py-2 rounded bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 focus:outline-none focus:border-emerald-400"
       />
 
       {error && <p className="text-red-400 mb-4">{error}</p>}
 
-      <div className="overflow-x-auto rounded-lg border border-slate-700">
+      <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
         <table className="w-full text-sm">
-          <thead className="bg-slate-800 text-slate-300">
+          <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
             <tr>
               <th className="text-left px-4 py-3">ID</th>
               <th className="text-left px-4 py-3">Shelf Code</th>
@@ -119,11 +119,11 @@ export default function Shelves() {
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan={7} className="text-center py-6 text-slate-400">Loading...</td></tr>
+              <tr><td colSpan={7} className="text-center py-6 text-slate-500 dark:text-slate-400">Loading...</td></tr>
             ) : shelves.length === 0 ? (
-              <tr><td colSpan={7} className="text-center py-6 text-slate-400">No shelves found.</td></tr>
+              <tr><td colSpan={7} className="text-center py-6 text-slate-500 dark:text-slate-400">No shelves found.</td></tr>
             ) : shelves.map(s => (
-              <tr key={s.id} className="border-t border-slate-700 hover:bg-slate-800/50">
+              <tr key={s.id} className="border-t border-slate-200 dark:border-slate-700 hover:bg-slate-100/50 hover:dark:bg-slate-800/50">
                 <td className="px-4 py-3">{s.id}</td>
                 <td className="px-4 py-3 font-medium">{s.shelf_code}</td>
                 <td className="px-4 py-3">{s.rack}</td>
@@ -131,13 +131,13 @@ export default function Shelves() {
                 <td className="px-4 py-3">{s.occupied_capacity}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-24 bg-slate-700 rounded-full h-2">
+                    <div className="w-24 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
                       <div
                         className={`h-2 rounded-full ${usagePct(s) >= 90 ? 'bg-red-500' : usagePct(s) >= 60 ? 'bg-yellow-400' : 'bg-emerald-500'}`}
                         style={{ width: `${usagePct(s)}%` }}
                       />
                     </div>
-                    <span className="text-xs text-slate-400">{usagePct(s)}%</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">{usagePct(s)}%</span>
                   </div>
                 </td>
                 {canEditShelves && (
@@ -154,36 +154,36 @@ export default function Shelves() {
         </table>
       </div>
 
-      <div className="flex justify-between items-center mt-4 text-sm text-slate-300">
+      <div className="flex justify-between items-center mt-4 text-sm text-slate-600 dark:text-slate-300">
         <span>Page {page} of {totalPages} ({count} total)</span>
         <div className="space-x-2">
-          <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40">Previous</button>
-          <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40">Next</button>
+          <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-3 py-1 rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 hover:dark:bg-slate-600 disabled:opacity-40">Previous</button>
+          <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="px-3 py-1 rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 hover:dark:bg-slate-600 disabled:opacity-40">Next</button>
         </div>
       </div>
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-slate-800 border border-slate-700 rounded-lg shadow-lg p-6 w-full max-w-md">
+          <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg p-6 w-full max-w-md">
             <h2 className="text-lg font-semibold mb-4">{editing ? 'Edit Shelf' : 'Add Shelf'}</h2>
             {formError && <p className="text-red-400 text-sm mb-2">{formError}</p>}
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium mb-1 text-slate-300">Shelf Code</label>
-                <input value={form.shelf_code} onChange={e => setForm(f => ({ ...f, shelf_code: e.target.value }))} className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 text-white focus:outline-none focus:border-emerald-400" />
+                <label className="block text-sm font-medium mb-1 text-slate-600 dark:text-slate-300">Shelf Code</label>
+                <input value={form.shelf_code} onChange={e => setForm(f => ({ ...f, shelf_code: e.target.value }))} className="w-full px-3 py-2 rounded bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-400" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-slate-300">Capacity</label>
-                <input type="number" value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: e.target.value }))} className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 text-white focus:outline-none focus:border-emerald-400" />
+                <label className="block text-sm font-medium mb-1 text-slate-600 dark:text-slate-300">Capacity</label>
+                <input type="number" value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: e.target.value }))} className="w-full px-3 py-2 rounded bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-400" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-slate-300">Rack ID</label>
-                <input type="number" value={form.rack} onChange={e => setForm(f => ({ ...f, rack: e.target.value }))} className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 text-white focus:outline-none focus:border-emerald-400" />
+                <label className="block text-sm font-medium mb-1 text-slate-600 dark:text-slate-300">Rack ID</label>
+                <input type="number" value={form.rack} onChange={e => setForm(f => ({ ...f, rack: e.target.value }))} className="w-full px-3 py-2 rounded bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-400" />
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-5">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 text-slate-300">Cancel</button>
-              <button onClick={handleSubmit} className="px-4 py-2 rounded bg-emerald-500 hover:bg-emerald-600 text-white font-semibold">{editing ? 'Update' : 'Create'}</button>
+              <button onClick={() => setShowModal(false)} className="px-4 py-2 rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 hover:dark:bg-slate-600 text-slate-600 dark:text-slate-300">Cancel</button>
+              <button onClick={handleSubmit} className="px-4 py-2 rounded bg-emerald-500 hover:bg-emerald-600 text-slate-900 dark:text-white font-semibold">{editing ? 'Update' : 'Create'}</button>
             </div>
           </div>
         </div>

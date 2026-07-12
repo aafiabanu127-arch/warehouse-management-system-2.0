@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { ReactElement } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { usePermissions } from '../hooks/usePermissions';
 import { getDashboardSummary } from '../api/dashboard';
 import type { DashboardSummary } from '../types/dashboard';
@@ -13,47 +14,7 @@ import {
   WarehouseIcon, PackageIcon, BoxIcon, AlertTriangleIcon, ArrowDownIcon, ArrowUpIcon,
   ShuffleIcon, AnalyticsIcon, CheckShieldIcon, ReportIcon, SparkleIcon,
 } from '../components/icons';
-
-type ThemeMode = 'light' | 'dark';
-const THEME_KEY = 'dashboard-theme';
-
-function useDashboardTheme() {
-  const [theme, setTheme] = useState<ThemeMode>(() => {
-    const stored = typeof window !== 'undefined' ? window.localStorage.getItem(THEME_KEY) : null;
-    return stored === 'light' ? 'light' : 'dark';
-  });
-
-  useEffect(() => {
-    window.localStorage.setItem(THEME_KEY, theme);
-  }, [theme]);
-
-  return { theme, toggleTheme: () => setTheme(t => (t === 'dark' ? 'light' : 'dark')) };
-}
-
-function ThemeToggle({ theme, onToggle }: { theme: ThemeMode; onToggle: () => void }) {
-  const isDark = theme === 'dark';
-  return (
-    <button
-      onClick={onToggle}
-      aria-label="Toggle light and dark mode"
-      className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-medium transition
-        border border-slate-200 bg-white text-slate-600 hover:bg-slate-50
-        dark:border-blue-400/[0.1] dark:bg-white/[0.04] dark:text-slate-300 dark:hover:bg-white/[0.08]"
-    >
-      {isDark ? (
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </svg>
-      ) : (
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="5" />
-          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-        </svg>
-      )}
-      {isDark ? 'Dark' : 'Light'}
-    </button>
-  );
-}
+import ThemeToggle from '../components/ThemeToggle';
 
 // Ocean palette — each stat keeps one semantic tone drawn from the
 // Ocean (#0F1F40) reference swatch instead of a rainbow of neon gradients.
@@ -200,7 +161,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   const perms = usePermissions();
   const location = useLocation();
-  const { theme, toggleTheme } = useDashboardTheme();
+  const { theme } = useTheme();
   const [data, setData] = useState<DashboardSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -253,7 +214,7 @@ export default function Dashboard() {
   const quickActions: QuickAction[] = [
     {
       to: '/assistant',
-      title: 'AI Assistant',
+      title: 'WMS AI',
       description: 'Ask questions about stock levels, movements, or get help navigating the system.',
       show: true,
       icon: SparkleIcon,
@@ -301,7 +262,7 @@ export default function Dashboard() {
     : { grid: '#0000000c', axis: '#64748b', tooltipBg: 'rgba(255,255,255,0.97)', tooltipBorder: 'rgba(37,99,235,0.25)', tooltipText: '#1e293b' };
 
   return (
-    <div className={isDark ? 'dark' : ''}>
+    <div>
       <div className="relative space-y-6 -m-4 md:-m-8 p-4 md:p-8 min-h-full bg-slate-50 dark:bg-transparent">
 
         {/* Ambient liquid-glass background accents, dark mode only */}
@@ -327,7 +288,7 @@ export default function Dashboard() {
               <span className="text-slate-400 dark:text-slate-500">({user?.role})</span>
             </p>
           </div>
-          <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          <ThemeToggle />
         </div>
 
         {isLoading && <p className="text-sm text-slate-500 dark:text-slate-400">Loading dashboard data...</p>}

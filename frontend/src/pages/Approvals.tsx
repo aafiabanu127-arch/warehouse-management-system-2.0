@@ -91,7 +91,7 @@ export default function Approvals() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-1">Approval Workflows</h1>
-      <p className="text-slate-400 mb-6">Review and action pending transfer and adjustment requests</p>
+      <p className="text-slate-500 dark:text-slate-400 mb-6">Review and action pending transfer and adjustment requests</p>
 
       {actionMsg && (
         <div className="mb-4 px-4 py-3 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm">
@@ -101,12 +101,12 @@ export default function Approvals() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-slate-800 rounded-lg border border-slate-700 p-5">
-          <p className="text-slate-400 text-sm">Pending Transfers</p>
+        <div className="bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
+          <p className="text-slate-500 dark:text-slate-400 text-sm">Pending Transfers</p>
           <p className="text-4xl font-bold text-yellow-400 mt-1">{pendingTransfers}</p>
         </div>
-        <div className="bg-slate-800 rounded-lg border border-slate-700 p-5">
-          <p className="text-slate-400 text-sm">Pending Adjustments</p>
+        <div className="bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
+          <p className="text-slate-500 dark:text-slate-400 text-sm">Pending Adjustments</p>
           <p className="text-4xl font-bold text-yellow-400 mt-1">{pendingAdjustments}</p>
         </div>
       </div>
@@ -116,7 +116,7 @@ export default function Approvals() {
         <button
           onClick={() => setTab('transfers')}
           className={`px-4 py-2 rounded text-sm font-medium transition ${
-            tab === 'transfers' ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+            tab === 'transfers' ? 'bg-emerald-500 text-slate-900 dark:text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-300 hover:dark:bg-slate-600'
           }`}
         >
           Transfer Requests
@@ -129,7 +129,7 @@ export default function Approvals() {
         <button
           onClick={() => setTab('adjustments')}
           className={`px-4 py-2 rounded text-sm font-medium transition ${
-            tab === 'adjustments' ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+            tab === 'adjustments' ? 'bg-emerald-500 text-slate-900 dark:text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-300 hover:dark:bg-slate-600'
           }`}
         >
           Adjustment Requests
@@ -141,17 +141,17 @@ export default function Approvals() {
         </button>
       </div>
 
-      {isLoading && <p className="text-slate-400">Loading requests...</p>}
+      {isLoading && <p className="text-slate-500 dark:text-slate-400">Loading requests...</p>}
       {error && <p className="text-red-400">{error}</p>}
 
       {/* Transfer Requests Table */}
       {!isLoading && tab === 'transfers' && (
-        <div className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+        <div className="bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
           {transfers.length === 0 ? (
-            <p className="p-6 text-slate-400 text-sm">No transfer requests found.</p>
+            <p className="p-6 text-slate-500 dark:text-slate-400 text-sm">No transfer requests found.</p>
           ) : (
             <table className="w-full text-sm">
-              <thead className="text-slate-400 border-b border-slate-700 bg-slate-900/40">
+              <thead className="text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700 bg-white/40 dark:bg-slate-900/40">
                 <tr>
                   <th className="text-left px-4 py-3">ID</th>
                   <th className="text-left px-4 py-3">Qty</th>
@@ -164,17 +164,17 @@ export default function Approvals() {
               </thead>
               <tbody>
                 {transfers.map((t) => (
-                  <tr key={t.id} className="border-t border-slate-700 hover:bg-slate-700/30">
-                    <td className="px-4 py-3 text-slate-300">#{t.id}</td>
+                  <tr key={t.id} className="border-t border-slate-200 dark:border-slate-700 hover:bg-slate-200/30 hover:dark:bg-slate-700/30">
+                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300">#{t.id}</td>
                     <td className="px-4 py-3">{t.quantity}</td>
-                    <td className="px-4 py-3 text-slate-300 max-w-[180px] truncate">{t.reason || '—'}</td>
-                    <td className="px-4 py-3 text-slate-400">{new Date(t.created_at).toLocaleDateString()}</td>
+                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300 max-w-[180px] truncate">{t.reason || '—'}</td>
+                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{new Date(t.created_at).toLocaleDateString()}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded text-xs font-semibold ${STATUS_COLORS[t.status]}`}>
                         {t.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-slate-400">
+                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400">
                       {t.reviewed_at ? new Date(t.reviewed_at).toLocaleDateString() : '—'}
                     </td>
                     <td className="px-4 py-3">
@@ -182,13 +182,13 @@ export default function Approvals() {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleAction('transfer', t.id, 'approve')}
-                            className="px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs rounded transition"
+                            className="px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-slate-900 dark:text-white text-xs rounded transition"
                           >
                             Approve
                           </button>
                           <button
                             onClick={() => handleAction('transfer', t.id, 'reject')}
-                            className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded transition"
+                            className="px-3 py-1 bg-red-500 hover:bg-red-600 text-slate-900 dark:text-white text-xs rounded transition"
                           >
                             Reject
                           </button>
@@ -209,12 +209,12 @@ export default function Approvals() {
 
       {/* Adjustment Requests Table */}
       {!isLoading && tab === 'adjustments' && (
-        <div className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+        <div className="bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
           {adjustments.length === 0 ? (
-            <p className="p-6 text-slate-400 text-sm">No adjustment requests found.</p>
+            <p className="p-6 text-slate-500 dark:text-slate-400 text-sm">No adjustment requests found.</p>
           ) : (
             <table className="w-full text-sm">
-              <thead className="text-slate-400 border-b border-slate-700 bg-slate-900/40">
+              <thead className="text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700 bg-white/40 dark:bg-slate-900/40">
                 <tr>
                   <th className="text-left px-4 py-3">ID</th>
                   <th className="text-left px-4 py-3">Type</th>
@@ -228,22 +228,22 @@ export default function Approvals() {
               </thead>
               <tbody>
                 {adjustments.map((a) => (
-                  <tr key={a.id} className="border-t border-slate-700 hover:bg-slate-700/30">
-                    <td className="px-4 py-3 text-slate-300">#{a.id}</td>
+                  <tr key={a.id} className="border-t border-slate-200 dark:border-slate-700 hover:bg-slate-200/30 hover:dark:bg-slate-700/30">
+                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300">#{a.id}</td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-0.5 rounded text-xs font-semibold bg-blue-400/10 text-blue-400">
                         {a.adjustment_type}
                       </span>
                     </td>
                     <td className="px-4 py-3">{a.requested_quantity}</td>
-                    <td className="px-4 py-3 text-slate-300 max-w-[160px] truncate">{a.reason}</td>
-                    <td className="px-4 py-3 text-slate-400">{new Date(a.created_at).toLocaleDateString()}</td>
+                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300 max-w-[160px] truncate">{a.reason}</td>
+                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{new Date(a.created_at).toLocaleDateString()}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded text-xs font-semibold ${STATUS_COLORS[a.status]}`}>
                         {a.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-slate-400">
+                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400">
                       {a.reviewed_at ? new Date(a.reviewed_at).toLocaleDateString() : '—'}
                     </td>
                     <td className="px-4 py-3">
@@ -251,13 +251,13 @@ export default function Approvals() {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleAction('adjustment', a.id, 'approve')}
-                            className="px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs rounded transition"
+                            className="px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-slate-900 dark:text-white text-xs rounded transition"
                           >
                             Approve
                           </button>
                           <button
                             onClick={() => handleAction('adjustment', a.id, 'reject')}
-                            className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded transition"
+                            className="px-3 py-1 bg-red-500 hover:bg-red-600 text-slate-900 dark:text-white text-xs rounded transition"
                           >
                             Reject
                           </button>

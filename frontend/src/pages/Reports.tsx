@@ -83,15 +83,15 @@ export default function Reports() {
       )}
 
       {/* Generate panel */}
-      <div className="bg-slate-800 rounded-xl border border-slate-700 p-5">
-        <h2 className="text-base font-medium text-slate-200 mb-4">Generate New Report</h2>
+      <div className="bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
+        <h2 className="text-base font-medium text-slate-700 dark:text-slate-200 mb-4">Generate New Report</h2>
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-slate-400">Report Type</label>
+            <label className="text-xs text-slate-500 dark:text-slate-400">Report Type</label>
             <select
               value={selType}
               onChange={e => setSelType(e.target.value)}
-              className="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-400"
+              className="bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-400"
             >
               {REPORT_TYPES.map(t => (
                 <option key={t.value} value={t.value}>{t.label}</option>
@@ -99,18 +99,18 @@ export default function Reports() {
             </select>
           </div>
           <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
-            <label className="text-xs text-slate-400">Title</label>
+            <label className="text-xs text-slate-500 dark:text-slate-400">Title</label>
             <input
               value={selTitle}
               onChange={e => setSelTitle(e.target.value)}
               placeholder="e.g. June Inventory Report"
-              className="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400"
+              className="bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-400"
             />
           </div>
           <button
             onClick={handleGenerate}
             disabled={generating}
-            className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50 transition"
+            className="bg-emerald-500 hover:bg-emerald-600 text-slate-900 dark:text-white px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50 transition"
           >
             {generating ? 'Generating…' : 'Generate'}
           </button>
@@ -118,9 +118,9 @@ export default function Reports() {
       </div>
 
       {/* Reports table */}
-      <div className="rounded-xl border border-slate-700 overflow-hidden">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-slate-800 text-slate-300">
+          <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
             <tr>
               <th className="px-5 py-3 text-left">Title</th>
               <th className="px-5 py-3 text-left">Type</th>
@@ -132,21 +132,21 @@ export default function Reports() {
           </thead>
           <tbody>
             {isLoading && (
-              <tr><td colSpan={6} className="px-5 py-8 text-center text-slate-400">Loading…</td></tr>
+              <tr><td colSpan={6} className="px-5 py-8 text-center text-slate-500 dark:text-slate-400">Loading…</td></tr>
             )}
             {!isLoading && reports.length === 0 && (
-              <tr><td colSpan={6} className="px-5 py-8 text-center text-slate-400">No reports yet. Generate one above.</td></tr>
+              <tr><td colSpan={6} className="px-5 py-8 text-center text-slate-500 dark:text-slate-400">No reports yet. Generate one above.</td></tr>
             )}
             {reports.map(r => (
-              <tr key={r.id} className="border-t border-slate-700 hover:bg-slate-800/50 transition">
-                <td className="px-5 py-3 font-medium text-white">{r.title}</td>
-                <td className="px-5 py-3 text-slate-400">{REPORT_TYPES.find(t => t.value === r.report_type)?.label ?? r.report_type}</td>
+              <tr key={r.id} className="border-t border-slate-200 dark:border-slate-700 hover:bg-slate-100/50 hover:dark:bg-slate-800/50 transition">
+                <td className="px-5 py-3 font-medium text-slate-900 dark:text-white">{r.title}</td>
+                <td className="px-5 py-3 text-slate-500 dark:text-slate-400">{REPORT_TYPES.find(t => t.value === r.report_type)?.label ?? r.report_type}</td>
                 <td className="px-5 py-3">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor(r.status)}`}>
                     {r.status}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-slate-400">{new Date(r.created_at).toLocaleDateString()}</td>
+                <td className="px-5 py-3 text-slate-500 dark:text-slate-400">{new Date(r.created_at).toLocaleDateString()}</td>
                 <td className="px-5 py-3">
                   {r.status === 'COMPLETED' && (
                     <div className="flex gap-2">
