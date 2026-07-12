@@ -18,6 +18,12 @@ class CustomUser(AbstractUser):
     phone      = models.CharField(max_length=20, null=True, blank=True)
     department = models.CharField(max_length=100, null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        # Any superuser (createsuperuser, shell, or admin) is always an ADMIN
+        if self.is_superuser:
+            self.role = 'ADMIN'
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.username} ({self.role})"
 
