@@ -1,4 +1,4 @@
-﻿from unittest.mock import patch
+from unittest.mock import patch
 from rest_framework.test import APITestCase
 from rest_framework import status
 from users.models import CustomUser
@@ -61,7 +61,7 @@ class ReportsTests(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_forecasting_report_endpoint(self):
-        resp = self.client.get("/api/reports/reports/forecasting/")
+        resp = self.client.get("/api/reports/forecasting/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data["report_type"], "FORECASTING")
         self.assertIn("summary", resp.data)

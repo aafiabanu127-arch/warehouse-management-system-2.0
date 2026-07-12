@@ -1,9 +1,9 @@
-﻿from django.urls import path, include
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import ReportViewSet, DashboardView, InventoryAnalyticsView, ForecastingReportView
 
 router = DefaultRouter()
-router.register(r'', ReportViewSet, basename='report')
+router.register(r'reports', ReportViewSet, basename='report')
 
 dashboard_summary = DashboardView.as_view({'get': 'summary'})
 
