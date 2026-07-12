@@ -261,6 +261,17 @@ export default function Login() {
             </button>
           </form>
 
+          <p className={`mt-4 text-center text-xs leading-relaxed ${d ? 'text-slate-500' : 'text-slate-400'}`}>
+            By signing in, you agree to our{' '}
+            <Link to="/terms" target="_blank" className={`hover:underline transition ${d ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}>
+              Terms &amp; Conditions
+            </Link>{' '}
+            and{' '}
+            <Link to="/privacy" target="_blank" className={`hover:underline transition ${d ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}>
+              Privacy Policy
+            </Link>.
+          </p>
+
           <div className="flex items-center gap-3 my-6">
             <div className={`flex-1 h-px ${d ? 'bg-white/10' : 'bg-slate-100'}`}/>
             <span className={`text-xs uppercase tracking-wide ${d ? 'text-slate-600' : 'text-slate-400'}`}>Access levels</span>

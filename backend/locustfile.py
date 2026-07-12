@@ -7,8 +7,8 @@ class WarehouseUser(HttpUser):
 
     def on_start(self):
         res = self.client.post("/api/token/", json={
-            "username": "admin",
-            "password": "admin123"
+            "username": "moon",
+            "password": "luna"
         })
         if res.status_code == 200:
             self.token = res.json().get("access")
@@ -18,31 +18,31 @@ class WarehouseUser(HttpUser):
 
     @task(3)
     def view_dashboard(self):
-        self.client.get("/api/dashboard-summary/", headers=self.auth())
+        self.client.get("/api/reports/dashboard-summary/", headers=self.auth())
 
     @task(3)
     def list_inventory(self):
-        self.client.get("/api/inventory/", headers=self.auth())
+        self.client.get("/api/inventory/inventory/", headers=self.auth())
 
     @task(2)
     def list_products(self):
-        self.client.get("/api/products/", headers=self.auth())
+        self.client.get("/api/inventory/products/", headers=self.auth())
 
     @task(2)
     def list_warehouses(self):
-        self.client.get("/api/warehouses/", headers=self.auth())
+        self.client.get("/api/warehouses/warehouses/", headers=self.auth())
 
     @task(2)
     def list_stock_movements(self):
-        self.client.get("/api/stock-movements/", headers=self.auth())
+        self.client.get("/api/inventory/stock-movements/", headers=self.auth())
 
     @task(1)
     def list_notifications(self):
-        self.client.get("/api/notifications/", headers=self.auth())
+        self.client.get("/api/notifications/notifications/", headers=self.auth())
 
     @task(1)
     def view_analytics(self):
-        self.client.get("/api/analytics/?type=slow_moving", headers=self.auth())
+        self.client.get("/api/reports/analytics/?type=slow_moving", headers=self.auth())
 
     @task(1)
     def list_reports(self):

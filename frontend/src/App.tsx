@@ -29,6 +29,9 @@ import ProcessPage from './pages/ProcessPage';
 import CareersPage from './pages/CareersPage';
 import ContactPage from './pages/ContactPage';
 import JobApplicationPage from './pages/JobApplicationPage';
+import FAQPage from './pages/FAQPage';
+import TermsPage from './pages/TermsPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import AIAssistant from './pages/AIAssistant';
 function App() {
   return (
@@ -44,6 +47,9 @@ function App() {
           <Route path="/careers" element={<CareersPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/apply" element={<JobApplicationPage />} />
+          <Route path="/faq" element={<FAQPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

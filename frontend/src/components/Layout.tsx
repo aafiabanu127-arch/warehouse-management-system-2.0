@@ -13,7 +13,7 @@ import {
 } from './icons';
 
 interface ActivityItem {
-  id: number;
+  id: number | string;
   time: string;
   text: string;
 }
@@ -128,24 +128,28 @@ export default function Layout() {
   useEffect(() => {
     const fetchActivity = async () => {
       try {
-        const [movRes, appRes] = await Promise.all([
-          apiClient.get('/stock-movements/?page_size=5'),
-          apiClient.get('/approvals/?page_size=5'),
+        const [movRes, transferRes, adjustRes] = await Promise.all([
+          apiClient.get('/inventory/stock-movements/?page_size=5'),
+          apiClient.get('/inventory/transfer-requests/?page_size=5'),
+          apiClient.get('/inventory/adjustment-requests/?page_size=5'),
         ]);
         const moves: ActivityItem[] = (movRes.data.results || []).map((m: any) => ({
           id: m.id,
           time: new Date(m.created_at || m.timestamp || Date.now()).toLocaleTimeString(),
           text: `Stock ${m.movement_type || 'movement'}: ${m.product_name || m.product || 'item'} × ${m.quantity}`,
         }));
-        const approvals: ActivityItem[] = (appRes.data.results || []).map((a: any) => ({
-          id: a.id,
+        const transfers = (transferRes.data.results || []).map((a: any) => ({ ...a, request_type: 'Transfer' }));
+        const adjustments = (adjustRes.data.results || []).map((a: any) => ({ ...a, request_type: 'Adjustment' }));
+        const allRequests = [...transfers, ...adjustments];
+        const approvals: ActivityItem[] = allRequests.map((a: any) => ({
+          id: `${a.request_type}-${a.id}`,
           time: new Date(a.created_at || Date.now()).toLocaleTimeString(),
           text: `Approval ${a.status || 'pending'}: ${a.request_type || 'request'} #${a.id}`,
         }));
         setActivity([...moves, ...approvals].slice(0, 8));
-        const pending = (appRes.data.results || []).filter((a: any) => a.status === 'PENDING');
+        const pending = allRequests.filter((a: any) => a.status === 'PENDING');
         const notifs: ActivityItem[] = pending.map((a: any) => ({
-          id: a.id,
+          id: `${a.request_type}-${a.id}`,
           time: new Date(a.created_at || Date.now()).toLocaleTimeString(),
           text: `Pending approval: ${a.request_type || 'request'} #${a.id}`,
         }));

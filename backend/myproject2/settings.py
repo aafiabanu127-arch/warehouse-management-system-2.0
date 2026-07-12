@@ -1,11 +1,14 @@
 from pathlib import Path
 from datetime import timedelta
 import os
+import sys
 import dj_database_url
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
+
+TESTING = 'test' in sys.argv
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 if not SECRET_KEY:
@@ -114,6 +117,19 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ),
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '20/min',
+        'user': '100/min',
+        'login': '5/min',
+    } if not TESTING else {
+        'anon': '100000/min',
+        'user': '100000/min',
+        'login': '100000/min',
+    },
 }
 
 SPECTACULAR_SETTINGS = {
@@ -187,4 +203,6 @@ LOGGING = {
 INSTALLED_APPS += ['careers']
 
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://warehouse-backend.onrender.com,https://warehouse-frontend.onrender.com').split(',')
+
+
 

@@ -15,6 +15,7 @@ export default function Register() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
+  const [agree, setAgree] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dark, setDark] = useState(true);
@@ -27,6 +28,10 @@ export default function Register() {
     e.preventDefault();
     if (form.password !== form.password2) {
       setError('Passwords do not match.');
+      return;
+    }
+    if (!agree) {
+      setError('Please agree to the Terms & Conditions and Privacy Policy to continue.');
       return;
     }
     setError('');
@@ -270,6 +275,25 @@ export default function Register() {
                 </button>
               </div>
             </div>
+
+            <label className="flex items-start gap-2.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={agree}
+                onChange={(e) => setAgree(e.target.checked)}
+                className={`mt-0.5 w-4 h-4 rounded focus:ring-blue-500 ${d ? 'border-slate-600 bg-white/5 text-blue-500' : 'border-slate-300 text-blue-600'}`}
+              />
+              <span className={`text-sm leading-snug ${d ? 'text-slate-400' : 'text-slate-500'}`}>
+                I agree to the{' '}
+                <Link to="/terms" target="_blank" className={`font-medium hover:underline transition ${d ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}>
+                  Terms &amp; Conditions
+                </Link>{' '}
+                and{' '}
+                <Link to="/privacy" target="_blank" className={`font-medium hover:underline transition ${d ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}>
+                  Privacy Policy
+                </Link>
+              </span>
+            </label>
 
             <button
               type="submit"
